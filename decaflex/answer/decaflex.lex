@@ -42,29 +42,30 @@ int							   { return 17; }
 !							   { return 28; }
 null						   { return 29; }
 \|\|						   { return 30; }
-package						   { return 31; }
-\+							   { return 32; }
-\}							   { return 33; }
-return						   { return 34; }
-\>\>						   { return 35; }
-\)							   { return 36; }
-\]							   { return 37; }
-;							   { return 38; }
-string						   { return 39; }
-true						   { return 40; }
-var							   { return 41; }
-void						   { return 42; }
-while						   { return 43; }
-\'([^\\]|\\[nrtvfab\\\'"])\'   { return 44; } // T_CHARCONSTANT
+package							   { return 31; }
+\+								   { return 32; }
+\}								   { return 33; }
+return							   { return 34; }
+\>\>							   { return 35; }
+\)								   { return 36; }
+\]								   { return 37; }
+;								   { return 38; }
+string							   { return 39; }
+true							   { return 40; }
+var								   { return 41; }
+void							   { return 42; }
+while							   { return 43; }
+\'([^\\]|\\[nrtvfab\\\'"])\'	   { return 44; } // T_CHARCONSTANT
 \/\/.*\n						   { return 45; } // T_COMMENT
 [a-zA-Z\_][a-zA-Z\_0-9]*		   { return 46; } // T_ID
 [0-9]+|0[xX][0-9a-fA-F]+		   { return 47; } // T_INTCONSTANT
 \"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { return 48; } // T_STRINGCONSTANT
-[\t\r\a\v\b ]+				   { return 49; } // T_WHITESPACE (without newline)
-[\t\r\a\v\b\n ]+			   { return 50; }
-(\'\')						   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
-(\\[^nrtvfab\\\'"])|(\\)	   { cerr << "Error: unexpected escape character in input" << endl; return -1; } // escape char errors
-(0[xX])						   { cerr << "Error: unexpected hexidecimal in input" << endl; return -1; } // 
+[\t\r\a\v\b ]+					   { return 49; } // T_WHITESPACE (without newline)
+[\t\r\a\v\b\n ]+				   { return 50; }
+(\'\')							   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
+\"([^\\\"\n]|\\[abtnvfr\\'\"])*	   { cerr << "Error: unexpected string literal in input" << endl; return -1; } // string errors
+(\\[^nrtvfab\\\'"])|(\\)		   { cerr << "Error: unexpected escape character in input" << endl; return -1; } // escape char errors
+(0[xX])							   { cerr << "Error: unexpected hexidecimal in input" << endl; return -1; } // 
 
 %%
 
@@ -120,7 +121,7 @@ int main () {
 		case 43: cout << "T_WHILE " << lexeme << endl; break;
 		case 44: cout << "T_CHARCONSTANT " << lexeme << endl; break;
 		case 45: 
-			lexeme.pop_back();
+			lexeme.erase(lexeme.size()-1);
 			cout << "T_COMMENT " << lexeme << "\\n" << endl; 
 		break;
 		case 46: cout << "T_ID " << lexeme << endl; break;
