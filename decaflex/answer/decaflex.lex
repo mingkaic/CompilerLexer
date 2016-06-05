@@ -62,6 +62,7 @@ while							   { return 43; }
 \"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { return 48; } // T_STRINGCONSTANT
 [\t\r\a\v\b ]+					   { return 49; } // T_WHITESPACE (without newline)
 [\t\r\a\v\b\n ]+				   { return 50; }
+\'([^\\][^\\])\'							   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
 (\'\')							   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
 \"([^\\\"\n]|\\[abtnvfr\\'\"])*	   { cerr << "Error: unexpected string literal in input" << endl; return -1; } // string errors
 (\\[^nrtvfab\\\'"])|(\\)		   { cerr << "Error: unexpected escape character in input" << endl; return -1; } // escape char errors
