@@ -6,6 +6,13 @@
 
 using namespace std;
 
+int line = 1;
+int pos = 0;
+
+void yyerror(string s) {
+	cerr << s << "\nLexical error: line " << line << ", position " << pos+1 << endl;
+}
+
 %}
 
 %%
@@ -62,11 +69,10 @@ while							   { return 43; }
 \"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { return 48; } // T_STRINGCONSTANT
 [\t\r\a\v\b ]+					   { return 49; } // T_WHITESPACE (without newline)
 [\t\r\a\v\b\n ]+				   { return 50; }
-\'([^\\][^\\])\'							   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
-(\'\')							   { cerr << "Error: unexpected character literal in input" << endl; return -1; } // char errors
-\"([^\\\"\n]|\\[abtnvfr\\'\"])*	   { cerr << "Error: unexpected string literal in input" << endl; return -1; } // string errors
-(\\[^nrtvfab\\\'"])|(\\)		   { cerr << "Error: unexpected escape character in input" << endl; return -1; } // escape char errors
-(0[xX])							   { cerr << "Error: unexpected hexidecimal in input" << endl; return -1; } // 
+\'([^\\][^\\])\'|(\'\')			   { yyerror("Error: unexpected character literal in input"); return -1; } // char errors
+\"([^\\\"\n]|\\[abtnvfr\\'\"])*	   { yyerror("Error: unexpected string literal in input"); return -1; } // string errors
+(\\[^nrtvfab\\\'"])|(\\)		   { yyerror("Error: unexpected escape character in input"); return -1; } // escape char errors
+(0[xX])							   { yyerror("Error: unexpected hexidecimal in input"); return -1; } // 
 
 %%
 
@@ -74,6 +80,7 @@ int main () {
   int token;
   string lexeme;
   while ((token = yylex())) {
+  	bool reset_pos = false;
     if (token > 0) {
       lexeme.assign(yytext);
 	  switch(token) {
@@ -124,6 +131,8 @@ int main () {
 		case 45: 
 			lexeme.erase(lexeme.size()-1);
 			cout << "T_COMMENT " << lexeme << "\\n" << endl; 
+			line++;
+			reset_pos = true;
 		break;
 		case 46: cout << "T_ID " << lexeme << endl; break;
 		case 47: cout << "T_INTCONSTANT " << lexeme << endl; break;
@@ -133,12 +142,19 @@ int main () {
 			cout << "T_WHITESPACE ";
 			for (size_t i = 0; i < lexeme.size(); i++) {
 				if (lexeme[i] == '\n') {
-					cout << "\\n"; 
+					cout << "\\n";
+					line++;
+					reset_pos = true;
 				}
 			}
-			cout << endl; 
+			cout << endl;
 			break;
 		default: exit(EXIT_FAILURE);
+	  }
+	  if (reset_pos) {
+	  	pos = 0;
+	  } else {
+	  	pos += lexeme.size();
 	  }
     } else {
       if (token < 0) {
