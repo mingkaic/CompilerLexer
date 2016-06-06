@@ -10,7 +10,7 @@ int line = 1;
 int pos = 0;
 
 void yyerror(string s) {
-	cerr << s << "\nLexical error: line " << line << ", position " << pos+1 << endl;
+	cerr << "Error: " << s << "\nLexical error: line " << line << ", position " << pos+1 << endl;
 }
 
 %}
@@ -69,10 +69,13 @@ while							   { return 43; }
 \"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { return 48; } // T_STRINGCONSTANT
 [\t\r\a\v\b ]+					   { return 49; } // T_WHITESPACE (without newline)
 [\t\r\a\v\b\n ]+				   { return 50; }
-\'([^\\][^\\])\'|(\'\')			   { yyerror("Error: unexpected character literal in input"); return -1; } // char errors
-\"([^\\\"\n]|\\[abtnvfr\\'\"])*	   { yyerror("Error: unexpected string literal in input"); return -1; } // string errors
-(\\[^nrtvfab\\\'"])|(\\)		   { yyerror("Error: unexpected escape character in input"); return -1; } // escape char errors
-(0[xX])							   { yyerror("Error: unexpected hexidecimal in input"); return -1; } // 
+\\[^nrtvfab\\\'"]|\\		   	   { yyerror("unknown escape sequence in string constant"); return -1; }
+\"[^\\\"]*\n[^\\\"]*\"			   { yyerror("newline in string constant"); return -1; }
+\"[^\\\"\n]*					   { yyerror("string constant is missing closing delimiter"); return -1; }
+\'[^\\][^\\\']+\'				   { yyerror("char constant length is greater than one"); return -1; }
+\'[^\\][^\\\']+				   	   { yyerror("unterminated char constant"); return -1; }
+\'\'			   				   { yyerror("char constant has zero width"); return -1; }
+(0[xX])|(\"\\[abtnvfr\\'\"]*)	   { yyerror("unexpected character in input"); return -1; }
 
 %%
 
