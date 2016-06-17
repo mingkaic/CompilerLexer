@@ -66,10 +66,10 @@ true						   { lexeme.assign(yytext); pos += lexeme.size(); return T_TRUE; }
 var							   { lexeme.assign(yytext); pos += lexeme.size(); return T_VAR; }
 void						   { lexeme.assign(yytext); pos += lexeme.size(); return T_VOID; }
 while						   { lexeme.assign(yytext); pos += lexeme.size(); return T_WHILE; }
-\'([^\\]|\\[nrtvfab\\\'"])\'	   { yylval.sval = new string(yytext); pos += yylval.sval.size(); return T_CHARCONSTANT; }
-[a-zA-Z\_][a-zA-Z\_0-9]*		   { yylval.sval = new string(yytext); pos += yylval.sval.size(); return T_ID; }
-[0-9]+|0[xX][0-9a-fA-F]+		   { yylval.sval = new string(yytext); pos += yylval.sval.size(); return T_INTCONSTANT; } 
-\"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { yylval.sval = new string(yytext); pos += yylval.sval.size(); return T_STRINGCONSTANT; }
+\'([^\\]|\\[nrtvfab\\\'"])\'	   { yylval.sval = new string(yytext); pos += yylval.sval->size(); return T_CHARCONSTANT; }
+[a-zA-Z\_][a-zA-Z\_0-9]*		   { yylval.sval = new string(yytext); pos += yylval.sval->size(); return T_ID; }
+[0-9]+|0[xX][0-9a-fA-F]+		   { yylval.sval = new string(yytext); pos += yylval.sval->size(); return T_INTCONSTANT; } 
+\"([^\\\"\n]|\\[abtnvfr\\'\"])*\"  { yylval.sval = new string(yytext); pos += yylval.sval->size(); return T_STRINGCONSTANT; }
 \/\/.*\n						   { line++; pos = 0; } // T_COMMENT ignore
 [\t\r\a\v\b ]+					   { lexeme.assign(yytext); pos += lexeme.size(); } // T_WHITESPACE ignore
 [\t\r\a\v\b\n ]+				   { line++; pos = 0; } // T_WHITESPACE with newline ignore
