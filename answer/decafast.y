@@ -77,7 +77,11 @@ using namespace std;
 %type <ast> field_decl id_list constant
 %type <ast> param_list block var_list statement_list statement
 %type <ast> assign_list assign method_call method_arg_list method_arg
-%type <ast> expr bin_op un_op
+%type <ast> expr top_op
+%type <ast> comp_level comp_op
+%type <ast> plus_level plus_op
+%type <ast> mult_level mult_op 
+%type <ast> not_level to_endpoint
 
 %%
 
@@ -181,11 +185,9 @@ field_decl: T_VAR id_list decaf_type T_SEMICOLON {
         delete ids;
         $$ = res;
     }
-    | T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON { 
-        decafStmtList* res = new decafStmtList();
-        res->push_back(new FieldDeclAST(*$2, $3, (constantAST*) $5));
+    | T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON {
+        $$ = new FieldDeclAST(*$2, $3, (constantAST*) $5);
         delete $2;
-        $$ = res;
     }
     ;
 
@@ -213,8 +215,8 @@ constant: T_INTCONSTANT { $$ = new constantAST("NumberExpr", *$1); delete $1; }
             return -1;
         }
     }
-    | T_TRUE { $$ = new constantAST("BoolExpr", "true"); }
-    | T_FALSE { $$ = new constantAST("BoolExpr", "false"); }
+    | T_TRUE { $$ = new constantAST("BoolExpr", "True"); }
+    | T_FALSE { $$ = new constantAST("BoolExpr", "False"); }
     ;
 
 method_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
@@ -253,12 +255,12 @@ block: T_LCB var_list statement_list T_RCB {
     ;
 
 var_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
-    | T_VAR id_list decaf_type T_SEMICOLON var_list {
-        decafStmtList* res = (decafStmtList*) $5;
-        temporaryAST* ids = (temporaryAST*) $2;
-        terminalAST* t = (terminalAST*) $3;
+    | var_list T_VAR id_list decaf_type T_SEMICOLON {
+        decafStmtList* res = (decafStmtList*) $1;
+        temporaryAST* ids = (temporaryAST*) $3;
+        terminalAST* t = (terminalAST*) $4;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_front(new typedSymAST(**it, new terminalAST(*t)));
+            res->push_back(new typedSymAST(**it, new terminalAST(*t)));
         }
         delete t;
         $$ = res;
@@ -294,9 +296,8 @@ statement: block { $$ = $1; }
         blockAST* bloc = (blockAST*) $9;
         $$ = new ForStmtAST(init, $5, iter, bloc);
     }
-    | T_RETURN T_SEMICOLON | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { 
-        $$ = new ReturnStmtAST(NULL);
-    }
+    | T_RETURN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
+    | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
     | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST($3); }
     | T_BREAK T_SEMICOLON { $$ = new terminalAST("BreakStmt"); }
     | T_CONTINUE T_SEMICOLON { $$ = new terminalAST("ContinueStmt"); }
@@ -340,7 +341,7 @@ method_arg_list: method_arg { // one or more
 method_arg: expr { $$ = $1; } 
     | T_STRINGCONSTANT { 
         try {
-            $$ = new constantAST("StringConstant", convertescape(*$1));
+            $$ = new constantAST("StringConstant", *$1);
         } catch (string e) {
             yyerror(e.c_str());
             return -1;
@@ -348,34 +349,54 @@ method_arg: expr { $$ = $1; }
     }
     ;
 
-expr: T_ID { $$ = new rvalueAST(*$1); delete $1; }
-    | T_ID T_LSB expr T_RSB { $$ = new rvalueAST(*$1, $3); delete $1; }
-    | T_LPAREN expr T_RPAREN { $$ = $2; }
-    | method_call { $$ = $1; }
-    | constant { $$ = $1; }
-    | expr bin_op expr { $$ = new opAST($1, (terminalAST*) $2, $3); }
-    | un_op expr { $$ = new opAST($2, (terminalAST*) $1); }
+expr: comp_level { $$ = $1; }
+    | expr top_op comp_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
     ;
 
-bin_op: T_PLUS { $$ = new terminalAST("Plus"); }
-    | T_MINUS { $$ = new terminalAST("Minus"); }
-    | T_MULT { $$ = new terminalAST("Mult"); }
-    | T_DIV { $$ = new terminalAST("Div"); }
-    | T_LEFTSHIFT { $$ = new terminalAST("Leftshift"); }
-    | T_RIGHTSHIFT { $$ = new terminalAST("Rightshift"); }
-    | T_MOD { $$ = new terminalAST("Mod"); }
-    | T_EQ { $$ = new terminalAST("Eq"); }
+comp_level: plus_level { $$ = $1; }
+    | comp_level comp_op plus_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    ;
+
+plus_level: mult_level { $$ = $1; }
+    | plus_level plus_op mult_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    ;
+
+mult_level: not_level { $$ = $1; }
+    | mult_level mult_op not_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    ;
+
+not_level: to_endpoint { $$ = $1; }
+    | T_NOT not_level { $$ = new opAST($2, new terminalAST("Not")); }
+    ;
+
+to_endpoint: T_ID { $$ = new rvalueAST(*$1); delete $1; }
+    | T_ID T_LSB expr T_RSB { $$ = new rvalueAST(*$1, $3); delete $1; }
+    | method_call { $$ = $1; }
+    | constant { $$ = $1; }
+    | T_LPAREN expr T_RPAREN { $$ = $2; }
+    | T_MINUS to_endpoint { $$ = new opAST($2, new terminalAST("UnaryMinus")); }
+    ;
+
+top_op: T_AND { $$ = new terminalAST("And"); }
+    | T_OR { $$ = new terminalAST("Or"); }
+    ;
+
+comp_op: T_EQ { $$ = new terminalAST("Eq"); }
     | T_NEQ { $$ = new terminalAST("Neq"); }
     | T_LT { $$ = new terminalAST("Lt"); }
     | T_LEQ { $$ = new terminalAST("Leq"); }
     | T_GT { $$ = new terminalAST("Gt"); }
     | T_GEQ { $$ = new terminalAST("Geq"); }
-    | T_AND { $$ = new terminalAST("And"); }
-    | T_OR { $$ = new terminalAST("Or"); }
+
+plus_op: T_PLUS { $$ = new terminalAST("Plus"); }
+    | T_MINUS { $$ = new terminalAST("Minus"); }
     ;
 
-un_op: T_NOT { $$ = new terminalAST("Not"); }
-    | T_MINUS { $$ = new terminalAST("UnaryMinus"); }
+mult_op: T_MULT { $$ = new terminalAST("Mult"); }
+    | T_DIV { $$ = new terminalAST("Div"); }
+    | T_LEFTSHIFT { $$ = new terminalAST("Leftshift"); }
+    | T_RIGHTSHIFT { $$ = new terminalAST("Rightshift"); }
+    | T_MOD { $$ = new terminalAST("Mod"); }
     ;
 
 %%

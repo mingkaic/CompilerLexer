@@ -1,10 +1,8 @@
-extern func print_int(int) void;
-extern func print_bool(bool) int;
-
-package Test {
-	var x int = 32;
-
+package QuickSort {
 	func main() void {
-		var i int;
+		a = 1 >> 2 + 3;
+		b = 1 + 2 * 3;
+		c = !false || true;
+		d = 1 / 2 + -3;
 	}
 }

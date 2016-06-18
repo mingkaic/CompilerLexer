@@ -1,4 +1,6 @@
 INFO:root:path=dev
+INFO:root:Checking dev/expr-testfile-6.out
+INFO:root:dev/expr-testfile-6.out Correct!
 INFO:root:Checking dev/3.ret
 INFO:root:dev/3.ret Correct!
 INFO:root:Checking dev/forloop.out
@@ -9,6 +11,8 @@ INFO:root:Checking dev/method0.out
 INFO:root:dev/method0.out Correct!
 INFO:root:Checking dev/charexpr-1.out
 INFO:root:dev/charexpr-1.out Correct!
+INFO:root:Checking dev/charvals-6.out
+INFO:root:dev/charvals-6.out Correct!
 INFO:root:Checking dev/e4.ret
 INFO:root:dev/e4.ret Correct!
 INFO:root:Checking dev/charescapevals-1.out
@@ -20,13 +24,7 @@ INFO:root:dev/stringescapes-5.out Correct!
 INFO:root:Checking dev/stringescapes-6.out
 INFO:root:dev/stringescapes-6.out Correct!
 INFO:root:Checking dev/prec.out
-INFO:root:Diff between reference and your output for dev/prec.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(QuickSort,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(a,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(2)),NumberExpr(3))),AssignVar(b,BinaryExpr(Plus,NumberExpr(1),BinaryExpr(Mult,NumberExpr(2),NumberExpr(3)))),AssignVar(c,BinaryExpr(Or,UnaryExpr(Not,BoolExpr(False)),BoolExpr(True))),AssignVar(d,BinaryExpr(Plus,BinaryExpr(Div,NumberExpr(1),NumberExpr(2)),UnaryExpr(UnaryMinus,NumberExpr(3))))))))
-+Program(None,Package(QuickSort,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(a,BinaryExpr(Rightshift,NumberExpr(1),BinaryExpr(Plus,NumberExpr(2),NumberExpr(3)))),AssignVar(b,BinaryExpr(Plus,NumberExpr(1),BinaryExpr(Mult,NumberExpr(2),NumberExpr(3)))),AssignVar(c,UnaryExpr(Not,BinaryExpr(Or,BoolExpr(false),BoolExpr(true)))),AssignVar(d,BinaryExpr(Div,NumberExpr(1),BinaryExpr(Plus,NumberExpr(2),UnaryExpr(UnaryMinus,NumberExpr(3)))))))))
+INFO:root:dev/prec.out Correct!
 INFO:root:Checking dev/charescapevals-5.out
 INFO:root:dev/charescapevals-5.out Correct!
 INFO:root:Checking dev/returnexpr.out
@@ -46,17 +44,7 @@ INFO:root:dev/charvals-7.out Correct!
 INFO:root:Checking dev/onlyfields.out
 INFO:root:dev/onlyfields.out Correct!
 INFO:root:Checking dev/quicksort.out
-INFO:root:Diff between reference and your output for dev/quicksort.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1,4 +1,4 @@
- Program(ExternFunction(print_string,VoidType,VarDef(StringType)),ExternFunction(print_int,VoidType,VarDef(IntType)),Package(QuickSort,FieldDecl(list,IntType,Array(100)),Method(cr,VoidType,None,MethodBlock(None,MethodCall(print_string,StringConstant("
- ")))),Method(displayList,VoidType,VarDef(start,IntType),VarDef(len,IntType),MethodBlock(VarDef(j,IntType),MethodCall(print_string,StringConstant("List:
--")),ForStmt(AssignVar(j,VariableExpr(start)),BinaryExpr(Lt,VariableExpr(j),BinaryExpr(Plus,VariableExpr(start),VariableExpr(len))),AssignVar(j,BinaryExpr(Plus,VariableExpr(j),NumberExpr(1))),Block(None,MethodCall(print_int,ArrayLocExpr(list,VariableExpr(j))),MethodCall(print_string,StringConstant(" ")),IfStmt(BinaryExpr(Or,BinaryExpr(Eq,BinaryExpr(Mod,BinaryExpr(Plus,BinaryExpr(Minus,VariableExpr(j),VariableExpr(start)),NumberExpr(1)),NumberExpr(20)),NumberExpr(0)),BinaryExpr(Eq,BinaryExpr(Plus,VariableExpr(j),NumberExpr(1)),BinaryExpr(Plus,VariableExpr(start),VariableExpr(len)))),Block(None,MethodCall(cr,None)),None))))),Method(initList,VoidType,VarDef(size,IntType),MethodBlock(VarDef(i,IntType),ForStmt(AssignVar(i,NumberExpr(0)),BinaryExpr(Lt,VariableExpr(i),VariableExpr(size)),AssignVar(i,BinaryExpr(Plus,VariableExpr(i),NumberExpr(1))),Block(None,AssignArrayLoc(list,VariableExpr(i),BinaryExpr(Mod,BinaryExpr(Mult,VariableExpr(i),NumberExpr(2382983)),NumberExpr(100))))))),Method(swap,VoidType,VarDef(leftPtr,IntType),VarDef(rightPtr,IntType),MethodBlock(VarDef(temp,IntType),AssignVar(temp,ArrayLocExpr(list,VariableExpr(leftPtr))),AssignArrayLoc(list,VariableExpr(leftPtr),ArrayLocExpr(list,VariableExpr(rightPtr))),AssignArrayLoc(list,VariableExpr(rightPtr),VariableExpr(temp)))),Method(quickSort,VoidType,VarDef(left,IntType),VarDef(right,IntType),MethodBlock(None,IfStmt(BinaryExpr(Leq,BinaryExpr(Minus,VariableExpr(right),VariableExpr(left)),NumberExpr(0)),Block(None,ReturnStmt(None)),Block(VarDef(part,IntType),VarDef(pivot,IntType),AssignVar(pivot,ArrayLocExpr(list,VariableExpr(right))),AssignVar(part,MethodCall(partition,VariableExpr(left),VariableExpr(right),VariableExpr(pivot))),MethodCall(quickSort,VariableExpr(left),BinaryExpr(Minus,VariableExpr(part),NumberExpr(1))),MethodCall(quickSort,BinaryExpr(Plus,VariableExpr(part),NumberExpr(1)),VariableExpr(right)))))),Method(main,VoidType,None,MethodBlock(VarDef(size,IntType),AssignVar(size,NumberExpr(100)),MethodCall(initList,VariableExpr(size)),MethodCall(displayList,NumberExpr(0),VariableExpr(size)),MethodCall(quickSort,NumberExpr(0),BinaryExpr(Minus,VariableExpr(size),NumberExpr(1))),MethodCall(print_string,StringConstant("After sorting:
--")),MethodCall(displayList,NumberExpr(0),VariableExpr(size)))),Method(partition,IntType,VarDef(left,IntType),VarDef(right,IntType),VarDef(pivot,IntType),MethodBlock(VarDef(leftPtr,IntType),VarDef(rightPtr,IntType),AssignVar(leftPtr,BinaryExpr(Minus,VariableExpr(left),NumberExpr(1))),AssignVar(rightPtr,VariableExpr(right)),WhileStmt(BoolExpr(True),Block(None,WhileStmt(BoolExpr(True),Block(None,AssignVar(leftPtr,BinaryExpr(Plus,VariableExpr(leftPtr),NumberExpr(1))),IfStmt(BinaryExpr(Geq,ArrayLocExpr(list,VariableExpr(leftPtr)),VariableExpr(pivot)),Block(None,BreakStmt),None))),WhileStmt(BoolExpr(True),Block(None,IfStmt(BinaryExpr(Leq,VariableExpr(rightPtr),NumberExpr(0)),Block(None,BreakStmt),None),AssignVar(rightPtr,BinaryExpr(Minus,VariableExpr(rightPtr),NumberExpr(1))),IfStmt(BinaryExpr(Leq,ArrayLocExpr(list,VariableExpr(rightPtr)),VariableExpr(pivot)),Block(None,BreakStmt),None))),IfStmt(BinaryExpr(Geq,VariableExpr(leftPtr),VariableExpr(rightPtr)),Block(None,BreakStmt),Block(None,MethodCall(swap,VariableExpr(leftPtr),VariableExpr(rightPtr)))))),MethodCall(swap,VariableExpr(leftPtr),VariableExpr(right)),ReturnStmt(VariableExpr(leftPtr))))))
-+")),ForStmt(AssignVar(j,VariableExpr(start)),BinaryExpr(Lt,VariableExpr(j),BinaryExpr(Plus,VariableExpr(start),VariableExpr(len))),AssignVar(j,BinaryExpr(Plus,VariableExpr(j),NumberExpr(1))),Block(None,MethodCall(print_int,ArrayLocExpr(list,VariableExpr(j))),MethodCall(print_string,StringConstant(" ")),IfStmt(BinaryExpr(Mod,BinaryExpr(Minus,VariableExpr(j),BinaryExpr(Plus,VariableExpr(start),NumberExpr(1))),BinaryExpr(Eq,NumberExpr(20),BinaryExpr(Or,NumberExpr(0),BinaryExpr(Plus,VariableExpr(j),BinaryExpr(Eq,NumberExpr(1),BinaryExpr(Plus,VariableExpr(start),VariableExpr(len))))))),Block(None,MethodCall(cr,None)),None))))),Method(initList,VoidType,VarDef(size,IntType),MethodBlock(VarDef(i,IntType),ForStmt(AssignVar(i,NumberExpr(0)),BinaryExpr(Lt,VariableExpr(i),VariableExpr(size)),AssignVar(i,BinaryExpr(Plus,VariableExpr(i),NumberExpr(1))),Block(None,AssignArrayLoc(list,VariableExpr(i),BinaryExpr(Mod,BinaryExpr(Mult,VariableExpr(i),NumberExpr(2382983)),NumberExpr(100))))))),Method(swap,VoidType,VarDef(leftPtr,IntType),VarDef(rightPtr,IntType),MethodBlock(VarDef(temp,IntType),AssignVar(temp,ArrayLocExpr(list,VariableExpr(leftPtr))),AssignArrayLoc(list,VariableExpr(leftPtr),ArrayLocExpr(list,VariableExpr(rightPtr))),AssignArrayLoc(list,VariableExpr(rightPtr),VariableExpr(temp)))),Method(quickSort,VoidType,VarDef(left,IntType),VarDef(right,IntType),MethodBlock(None,IfStmt(BinaryExpr(Minus,VariableExpr(right),BinaryExpr(Leq,VariableExpr(left),NumberExpr(0))),Block(None,BinaryExpr(Leq,VariableExpr(left),NumberExpr(0))),Block(VarDef(part,IntType),VarDef(pivot,IntType),AssignVar(pivot,ArrayLocExpr(list,VariableExpr(right))),AssignVar(part,MethodCall(partition,VariableExpr(left),VariableExpr(right),VariableExpr(pivot))),MethodCall(quickSort,VariableExpr(left),BinaryExpr(Minus,VariableExpr(part),NumberExpr(1))),MethodCall(quickSort,BinaryExpr(Plus,VariableExpr(part),NumberExpr(1)),VariableExpr(right)))))),Method(main,VoidType,None,MethodBlock(VarDef(size,IntType),AssignVar(size,NumberExpr(100)),MethodCall(initList,VariableExpr(size)),MethodCall(displayList,NumberExpr(0),VariableExpr(size)),MethodCall(quickSort,NumberExpr(0),BinaryExpr(Minus,VariableExpr(size),NumberExpr(1))),MethodCall(print_string,StringConstant("After sorting:
-+")),MethodCall(displayList,NumberExpr(0),VariableExpr(size)))),Method(partition,IntType,VarDef(left,IntType),VarDef(right,IntType),VarDef(pivot,IntType),MethodBlock(VarDef(leftPtr,IntType),VarDef(rightPtr,IntType),AssignVar(leftPtr,BinaryExpr(Minus,VariableExpr(left),NumberExpr(1))),AssignVar(rightPtr,VariableExpr(right)),WhileStmt(BoolExpr(true),Block(None,WhileStmt(BoolExpr(true),Block(None,AssignVar(leftPtr,BinaryExpr(Plus,VariableExpr(leftPtr),NumberExpr(1))),IfStmt(BinaryExpr(Geq,ArrayLocExpr(list,VariableExpr(leftPtr)),VariableExpr(pivot)),Block(None,BreakStmt),None))),WhileStmt(BoolExpr(true),Block(None,IfStmt(BinaryExpr(Leq,VariableExpr(rightPtr),NumberExpr(0)),Block(None,BreakStmt),None),AssignVar(rightPtr,BinaryExpr(Minus,VariableExpr(rightPtr),NumberExpr(1))),IfStmt(BinaryExpr(Leq,ArrayLocExpr(list,VariableExpr(rightPtr)),VariableExpr(pivot)),Block(None,BreakStmt),None))),IfStmt(BinaryExpr(Geq,VariableExpr(leftPtr),VariableExpr(rightPtr)),Block(None,BreakStmt),Block(None,MethodCall(swap,VariableExpr(leftPtr),VariableExpr(rightPtr)))))),MethodCall(swap,VariableExpr(leftPtr),VariableExpr(right)),ReturnStmt(VariableExpr(leftPtr))))))
+INFO:root:dev/quicksort.out Correct!
 INFO:root:Checking dev/15.ret
 INFO:root:dev/15.ret Correct!
 INFO:root:Checking dev/methodcall0.out
@@ -69,12 +57,14 @@ INFO:root:Checking dev/8.ret
 INFO:root:dev/8.ret Correct!
 INFO:root:Checking dev/ifelse-prev.ret
 INFO:root:dev/ifelse-prev.ret Correct!
+INFO:root:Checking dev/charexpr-2.out
+INFO:root:dev/charexpr-2.out Correct!
 INFO:root:Checking dev/empty.ret
 INFO:root:dev/empty.ret Correct!
 INFO:root:Checking dev/charescapevals-7.out
 INFO:root:dev/charescapevals-7.out Correct!
-INFO:root:Checking dev/charvals-6.out
-INFO:root:dev/charvals-6.out Correct!
+INFO:root:Checking dev/10.ret
+INFO:root:dev/10.ret Correct!
 INFO:root:Checking dev/stringconst-2.out
 INFO:root:dev/stringconst-2.out Correct!
 INFO:root:Checking dev/if-func3.out
@@ -87,8 +77,6 @@ INFO:root:Checking dev/charescapes-6.out
 INFO:root:dev/charescapes-6.out Correct!
 INFO:root:Checking dev/2.ret
 INFO:root:dev/2.ret Correct!
-INFO:root:Checking dev/methodcall2-prev.ret
-INFO:root:dev/methodcall2-prev.ret Correct!
 INFO:root:Checking dev/charescapevals-2.out
 INFO:root:dev/charescapevals-2.out Correct!
 INFO:root:Checking dev/returnmismatch-intofchar-ok.out
@@ -97,10 +85,10 @@ INFO:root:Checking dev/externs.out
 INFO:root:dev/externs.out Correct!
 INFO:root:Checking dev/returnemptyparans.out
 INFO:root:dev/returnemptyparans.out Correct!
+INFO:root:Checking dev/expr-testfile-8.out
+INFO:root:dev/expr-testfile-8.out Correct!
 INFO:root:Checking dev/13.ret
 INFO:root:dev/13.ret Correct!
-INFO:root:Checking dev/method2-prev.ret
-INFO:root:dev/method2-prev.ret Correct!
 INFO:root:Checking dev/charvals-12.out
 INFO:root:dev/charvals-12.out Correct!
 INFO:root:Checking dev/charvals-1.out
@@ -117,46 +105,44 @@ INFO:root:Checking dev/charvals-9.out
 INFO:root:dev/charvals-9.out Correct!
 INFO:root:Checking dev/7.ret
 INFO:root:dev/7.ret Correct!
+INFO:root:Checking dev/expr-testfile-7.out
+INFO:root:dev/expr-testfile-7.out Correct!
 INFO:root:Checking dev/charvar.out
 INFO:root:dev/charvar.out Correct!
 INFO:root:Checking dev/charvals-13.out
 INFO:root:dev/charvals-13.out Correct!
-INFO:root:Checking dev/charescapes-1.out
-INFO:root:dev/charescapes-1.out Correct!
 INFO:root:Checking dev/method1.out
 INFO:root:dev/method1.out Correct!
 INFO:root:Checking dev/whileloop.out
-INFO:root:Diff between reference and your output for dev/whileloop.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(True),Block(None,AssignVar(x,NumberExpr(1))))))))
-+Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(true),Block(None,AssignVar(x,NumberExpr(1))))))))
+INFO:root:dev/whileloop.out Correct!
+INFO:root:Checking dev/expr-testfile-5.out
+INFO:root:dev/expr-testfile-5.out Correct!
 INFO:root:Checking dev/charvals-2.out
 INFO:root:dev/charvals-2.out Correct!
 INFO:root:Checking dev/charvals-4.out
 INFO:root:dev/charvals-4.out Correct!
 INFO:root:Checking dev/charescapes-2.out
 INFO:root:dev/charescapes-2.out Correct!
+INFO:root:Checking dev/expr-testfile-3.out
+INFO:root:dev/expr-testfile-3.out Correct!
 INFO:root:Checking dev/16.ret
 INFO:root:dev/16.ret Correct!
 INFO:root:Checking dev/decls.out
-INFO:root:Diff between reference and your output for dev/decls.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(C,FieldDecl(size,IntType,Scalar),FieldDecl(x,IntType,Scalar),Method(f,VoidType,None,MethodBlock(VarDef(x,IntType),VarDef(i,IntType),AssignVar(size,NumberExpr(100))))))
-+Program(None,Package(C,FieldDecl(x,IntType,Scalar),FieldDecl(size,IntType,Scalar),Method(f,VoidType,None,MethodBlock(VarDef(x,IntType),VarDef(i,IntType),AssignVar(size,NumberExpr(100))))))
+INFO:root:dev/decls.out Correct!
+INFO:root:Checking dev/assoc.out
+INFO:root:dev/assoc.out Correct!
 INFO:root:Checking dev/charvals-5.out
 INFO:root:dev/charvals-5.out Correct!
 INFO:root:Checking dev/charvals-8.out
 INFO:root:dev/charvals-8.out Correct!
 INFO:root:Checking dev/methodcall1.out
 INFO:root:dev/methodcall1.out Correct!
+INFO:root:Checking dev/catalan.out
+INFO:root:dev/catalan.out Correct!
 INFO:root:Checking dev/methodcall2.out
 INFO:root:dev/methodcall2.out Correct!
+INFO:root:Checking dev/4.ret
+INFO:root:dev/4.ret Correct!
 INFO:root:Checking dev/default-passes.out
 INFO:root:dev/default-passes.out Correct!
 INFO:root:Checking dev/charescapes-4.out
@@ -169,15 +155,8 @@ INFO:root:Checking dev/18.ret
 INFO:root:dev/18.ret Correct!
 INFO:root:Checking dev/e1.ret
 INFO:root:dev/e1.ret Correct!
-INFO:root:Checking dev/10.ret
-INFO:root:dev/10.ret Correct!
 INFO:root:Checking dev/returnempty.out
-INFO:root:Diff between reference and your output for dev/returnempty.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,ReturnStmt(None)))))
+INFO:root:dev/returnempty.out Correct!
 INFO:root:Checking dev/charprint.out
 INFO:root:dev/charprint.out Correct!
 INFO:root:Checking dev/if-func1.out
@@ -196,20 +175,12 @@ INFO:root:Checking dev/stringescapes-7.out
 INFO:root:dev/stringescapes-7.out Correct!
 INFO:root:Checking dev/stringescapes-1.out
 INFO:root:dev/stringescapes-1.out Correct!
-INFO:root:Checking dev/charexpr-2.ret
-INFO:root:Diff between reference and your output for dev/charexpr-2.ret
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--1
-+0
 INFO:root:Checking dev/charescapevals-6.out
 INFO:root:dev/charescapevals-6.out Correct!
 INFO:root:Checking dev/charescapevals-4.out
 INFO:root:dev/charescapevals-4.out Correct!
-INFO:root:Checking dev/method1-prev.ret
-INFO:root:dev/method1-prev.ret Correct!
+INFO:root:Checking dev/expr-testfile-9.out
+INFO:root:dev/expr-testfile-9.out Correct!
 INFO:root:Checking dev/charescapes-9.out
 INFO:root:dev/charescapes-9.out Correct!
 INFO:root:Checking dev/e2.ret
@@ -220,24 +191,60 @@ INFO:root:Checking dev/charvals-10.out
 INFO:root:dev/charvals-10.out Correct!
 INFO:root:Checking dev/no-main.out
 INFO:root:dev/no-main.out Correct!
-INFO:root:Checking dev/4.ret
-INFO:root:dev/4.ret Correct!
+INFO:root:Checking dev/charescapes-1.out
+INFO:root:dev/charescapes-1.out Correct!
 INFO:root:Checking dev/externsmultinocomma.ret
 INFO:root:dev/externsmultinocomma.ret Correct!
 INFO:root:Checking dev/ifelse.out
 INFO:root:dev/ifelse.out Correct!
-INFO:root:Checking dev/9.ret
-INFO:root:dev/9.ret Correct!
-INFO:root:Checking dev/methodcall1-prev.ret
-INFO:root:dev/methodcall1-prev.ret Correct!
 INFO:root:Checking dev/if-func2.out
 INFO:root:dev/if-func2.out Correct!
+INFO:root:Checking dev/9.ret
+INFO:root:dev/9.ret Correct!
+INFO:root:Checking dev/expr-testfile-10.out
+INFO:root:dev/expr-testfile-10.out Correct!
 INFO:root:Checking dev/stringescapequote.out
 INFO:root:dev/stringescapequote.out Correct!
+INFO:root:Checking dev/expr-testfile-2.out
+INFO:root:dev/expr-testfile-2.out Correct!
 INFO:root:Checking dev/charescapes-7.out
 INFO:root:dev/charescapes-7.out Correct!
 INFO:root:Checking dev/onlymethods.out
 INFO:root:dev/onlymethods.out Correct!
+INFO:root:Checking dev/externprintstring.out
+INFO:root:dev/externprintstring.out Correct!
+INFO:root:Checking dev/charvals-3.out
+INFO:root:dev/charvals-3.out Correct!
+INFO:root:Checking dev/11.ret
+INFO:root:dev/11.ret Correct!
+INFO:root:Checking dev/charescapes-5.out
+INFO:root:dev/charescapes-5.out Correct!
+INFO:root:Checking dev/expr-testfile-0.out
+INFO:root:dev/expr-testfile-0.out Correct!
+INFO:root:Checking dev/charexpr-3.out
+INFO:root:dev/charexpr-3.out Correct!
+INFO:root:Checking dev/gcd.out
+INFO:root:dev/gcd.out Correct!
+INFO:root:Checking dev/assignmismatch-intofchar-ok.out
+INFO:root:dev/assignmismatch-intofchar-ok.out Correct!
+INFO:root:Checking dev/method0-prev.ret
+INFO:root:dev/method0-prev.ret Correct!
+INFO:root:Checking dev/expr-testfile-1.out
+INFO:root:dev/expr-testfile-1.out Correct!
+INFO:root:Checking dev/method2.out
+INFO:root:dev/method2.out Correct!
+INFO:root:Checking dev/continue.out
+INFO:root:dev/continue.out Correct!
+INFO:root:Checking dev/expr-testfile-4.out
+INFO:root:dev/expr-testfile-4.out Correct!
+INFO:root:Checking dev/stringescapes-2.out
+INFO:root:dev/stringescapes-2.out Correct!
+INFO:root:Checking dev/19.ret
+INFO:root:dev/19.ret Correct!
+INFO:root:Checking dev/break.out
+INFO:root:dev/break.out Correct!
+INFO:root:Checking dev/returnnoparens.ret
+INFO:root:dev/returnnoparens.ret Correct!
 INFO:root:Checking dev/arith1.out
 INFO:root:Diff between reference and your output for dev/arith1.out
 INFO:root:
@@ -245,61 +252,13 @@ INFO:root:
 +++ your-output
 @@ -1 +1 @@
 -Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Minus,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(3)),BinaryExpr(Mod,BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(10))),BinaryExpr(Leftshift,BinaryExpr(Div,BinaryExpr(Mult,NumberExpr(5),NumberExpr(2)),NumberExpr(20)),NumberExpr(2)))),AssignVar(flag,BinaryExpr(Or,VariableExpr(a),BinaryExpr(And,VariableExpr(b),UnaryExpr(Not,VariableExpr(c)))))))))
-+Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Rightshift,NumberExpr(1),BinaryExpr(Plus,NumberExpr(3),BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,BinaryExpr(Mod,NumberExpr(2),BinaryExpr(Minus,NumberExpr(10),BinaryExpr(Mult,NumberExpr(5),BinaryExpr(Div,NumberExpr(2),BinaryExpr(Leftshift,NumberExpr(20),NumberExpr(2))))))))))),AssignVar(flag,BinaryExpr(Or,VariableExpr(a),BinaryExpr(And,VariableExpr(b),UnaryExpr(Not,VariableExpr(c)))))))))
-INFO:root:Checking dev/charvals-3.out
-INFO:root:dev/charvals-3.out Correct!
-INFO:root:Checking dev/11.ret
-INFO:root:dev/11.ret Correct!
-INFO:root:Checking dev/charescapes-5.out
-INFO:root:dev/charescapes-5.out Correct!
-INFO:root:Checking dev/charexpr-3.out
-INFO:root:dev/charexpr-3.out Correct!
-INFO:root:Checking dev/methodcall0-prev.ret
-INFO:root:dev/methodcall0-prev.ret Correct!
-INFO:root:Checking dev/gcd.out
-INFO:root:dev/gcd.out Correct!
-INFO:root:Checking dev/assignmismatch-intofchar-ok.out
-INFO:root:dev/assignmismatch-intofchar-ok.out Correct!
-INFO:root:Checking dev/method0-prev.ret
-INFO:root:dev/method0-prev.ret Correct!
-INFO:root:Checking dev/method2.out
-INFO:root:dev/method2.out Correct!
-INFO:root:Checking dev/continue.out
-INFO:root:Diff between reference and your output for dev/continue.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(True),Block(None,ContinueStmt))))))
-+Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(true),Block(None,ContinueStmt))))))
-INFO:root:Checking dev/stringescapes-2.out
-INFO:root:dev/stringescapes-2.out Correct!
-INFO:root:Checking dev/19.ret
-INFO:root:dev/19.ret Correct!
-INFO:root:Checking dev/break.out
-INFO:root:Diff between reference and your output for dev/break.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(True),Block(None,BreakStmt))))))
-+Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,WhileStmt(BoolExpr(true),Block(None,BreakStmt))))))
-INFO:root:Checking dev/returnnoparens.ret
-INFO:root:dev/returnnoparens.ret Correct!
-INFO:root:Checking dev/externprintstring.out
-INFO:root:dev/externprintstring.out Correct!
++Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Minus,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(3)),BinaryExpr(Mod,BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(10))),BinaryExpr(Leftshift,BinaryExpr(Div,BinaryExpr(Mult,NumberExpr(5),NumberExpr(2)),NumberExpr(20)),NumberExpr(2)))),AssignVar(flag,BinaryExpr(And,BinaryExpr(Or,VariableExpr(a),VariableExpr(b)),UnaryExpr(Not,VariableExpr(c))))))))
 INFO:root:Checking dev/arith3.ret
 INFO:root:dev/arith3.ret Correct!
 INFO:root:Checking dev/charexprprint.out
 INFO:root:dev/charexprprint.out Correct!
 INFO:root:Checking dev/arith4.out
-INFO:root:Diff between reference and your output for dev/arith4.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Minus,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(3)),BinaryExpr(Mod,BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(10))),BinaryExpr(Leftshift,BinaryExpr(Div,BinaryExpr(Mult,NumberExpr(5),NumberExpr(2)),NumberExpr(20)),NumberExpr(2)))),AssignVar(x,UnaryExpr(Not,VariableExpr(size)))))))
-+Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Rightshift,NumberExpr(1),BinaryExpr(Plus,NumberExpr(3),BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,BinaryExpr(Mod,NumberExpr(2),BinaryExpr(Minus,NumberExpr(10),BinaryExpr(Mult,NumberExpr(5),BinaryExpr(Div,NumberExpr(2),BinaryExpr(Leftshift,NumberExpr(20),NumberExpr(2))))))))))),AssignVar(x,UnaryExpr(Not,VariableExpr(size)))))))
+INFO:root:dev/arith4.out Correct!
 INFO:root:Checking dev/if-func5.out
 INFO:root:dev/if-func5.out Correct!
 INFO:root:Checking dev/charescapevals-8.out
@@ -307,12 +266,6 @@ INFO:root:dev/charescapevals-8.out Correct!
 INFO:root:Checking dev/charescapes-8.out
 INFO:root:dev/charescapes-8.out Correct!
 INFO:root:Checking dev/if-func4.out
-INFO:root:Diff between reference and your output for dev/if-func4.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(C,None,Method(f,BoolType,None,MethodBlock(None,ReturnStmt(BoolExpr(True)))),Method(main,VoidType,None,MethodBlock(None,IfStmt(MethodCall(f,None),Block(None,AssignVar(x,NumberExpr(1))),None)))))
-+Program(None,Package(C,None,Method(f,BoolType,None,MethodBlock(None,ReturnStmt(BoolExpr(true)))),Method(main,VoidType,None,MethodBlock(None,IfStmt(MethodCall(f,None),Block(None,AssignVar(x,NumberExpr(1))),None)))))
+INFO:root:dev/if-func4.out Correct!
 INFO:root:Checking dev/12.ret
 INFO:root:dev/12.ret Correct!
