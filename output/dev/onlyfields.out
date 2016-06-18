@@ -1,1 +1,1 @@
-Program(None,Package(QuickSort,FieldDeclAST(x,IntType,Scalar),None))
+Program(None,Package(QuickSort,FieldDecl(x,IntType,Scalar),None))

@@ -1,1 +1,1 @@
-Program(None,Package(Test,None,Method(main,IntType,None,MethodBlock(VarDef(x,IntType),AssignVar(x,CharacterExpr('a'))))))
+Program(None,Package(Test,None,Method(main,IntType,None,MethodBlock(VarDef(x,IntType),AssignVar(x,NumberExpr(97))))))

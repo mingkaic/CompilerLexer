@@ -1,1 +1,1 @@
-Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,ReturnStmtAST(None)))))
+Program(None,Package(C,None,Method(f,VoidType,None,MethodBlock(None,ReturnStmt(None)))))

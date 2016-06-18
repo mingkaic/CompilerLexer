@@ -4,12 +4,56 @@
 #include <ostream>
 #include <iostream>
 #include <sstream>
+#include <exception>
 
 #ifndef YYTOKENTYPE
 #include "decafast.tab.h"
 #endif
 
 using namespace std;
+
+string convertescape(string s) {
+	string res = "";
+	size_t len = s.size();
+	for (size_t i = 0; i < len; i++) {
+		if (s[i] == '\\') {
+			switch(s[i+1]) {
+                case '\'':
+                case '"':
+                case '\\':
+                    res.push_back(s[i+1]);
+                    break;
+                case 'n':
+                    res.push_back('\n');
+                    break;
+                case 'r':
+                    res.push_back('\r');
+                    break;
+                case 't':
+                    res.push_back('\t');
+                    break;
+                case 'v':
+                    res.push_back('\v');
+                    break;
+                case 'f':
+                    res.push_back('\f');
+                    break;
+                case 'a':
+                    res.push_back('\a');
+                    break;
+                case 'b':
+                    res.push_back('\b');
+                    break;
+                default: // just in case lexer misses
+                    throw "unknown escape sequence";
+            }
+            i++;
+		} else {
+			res.push_back(s[i]);
+		}
+	}
+	return res;
+}
 
 /// decafAST - Base class for all abstract syntax tree nodes.
 class decafAST {
@@ -121,7 +165,7 @@ public:
 			return string("AssignGlobalVar(") + Name + "," 
 				+ getString(Type) + "," + getString(constant) + ")";
 		}
-		string res = string("FieldDeclAST(") + Name + "," + getString(Type) + ",";
+		string res = string("FieldDecl(") + Name + "," + getString(Type) + ",";
 		if (arrNum.size() > 0) {
 			res += "Array(" + arrNum + ")";
 		} else {
@@ -185,56 +229,6 @@ public:
 	}
 };
 
-class methodCallAST : public decafAST {
-	string Name;
-	decafStmtList* args;
-public:
-	methodCallAST(string Name, decafStmtList* args) 
-		: Name(Name), args(args) {}
-	~methodCallAST() { if (NULL != args) { delete args; } }
-	string str() {
-		return string("MethodCall(") + Name + "," + getString(args) + ")"; 
-	}
-};
-
-class ReturnStmtAST : public decafAST {
-	decafAST* ret;
-public:
-	ReturnStmtAST(decafAST* ret) : ret(ret) {}
-	~ReturnStmtAST() { if (NULL != ret) { delete ret; } }
-	string str() {
-		return string("ReturnStmtAST(") + getString(ret) + ")";
-	}
-};
-
-class assignAST : public decafAST {
-	string lvalue1;
-	decafAST* lvalue2;
-	decafAST* rvalue;
-public:
-	assignAST(string lvalue, decafAST* rvalue) 
-		: lvalue1(lvalue), lvalue2(NULL), rvalue(rvalue) {}
-	assignAST(string lvalue1, decafAST* lvalue2, decafAST* rvalue) 
-		: lvalue1(lvalue1), lvalue2(lvalue2), rvalue(rvalue) {}
-	~assignAST() {
-		if (NULL != lvalue2) {
-			delete lvalue2;
-		}
-		if (NULL != rvalue) {
-			delete rvalue;
-		}
-	}
-	string str() {
-		string res;
-		if (NULL == lvalue2) {
-			res = "AssignVar(" + lvalue1 + ",";
-		} else {
-			res = "AssignArrayLoc(" + lvalue1 + "," + getString(lvalue2) + ",";
-		}
-		return res + getString(rvalue) + ")";
-	}
-};
-
 class blockAST : public decafAST {
 	decafStmtList* varList;
 	decafStmtList* stateList;
@@ -292,7 +286,7 @@ public:
 		}
 	}
 	string str() {
-		return string("WhileStmtAST(") + getString(condition) + "," + getString(block) + ")"; 
+		return string("WhileStmt(") + getString(condition) + "," + getString(block) + ")"; 
 	}
 };
 
@@ -300,9 +294,10 @@ class ForStmtAST : public decafAST {
 	decafStmtList* init;
 	decafAST* condition;
 	decafStmtList* iter;
+	blockAST* block;
 public:
-	ForStmtAST(decafStmtList* init, decafAST* condition, decafStmtList* iter)
-		: init(init), condition(condition), iter(iter) {}
+	ForStmtAST(decafStmtList* init, decafAST* condition, decafStmtList* iter, blockAST* block)
+		: init(init), condition(condition), iter(iter), block(block) {}
 	~ForStmtAST() {
 		if (NULL != init) { 
 			delete init; 
@@ -313,10 +308,13 @@ public:
 		if (NULL != iter) { 
 			delete iter; 
 		}
+		if (NULL != block) {
+			delete block;
+		}
 	}
 	string str() {
-		return string("ForStmtAST(") + getString(init) + "," +
-			getString(condition) + "," + getString(iter) + ")";
+		return string("ForStmt(") + getString(init) + "," + getString(condition) + "," 
+			+ getString(iter) + "," + getString(block) + ")";
 	}
 };
 
@@ -342,6 +340,56 @@ public:
 	string str() {
         return string("Method(") + Name + "," + getString(Type) + "," + 
         	getString(arrParam) + ",Method" + getString(block) + ")";
+	}
+};
+
+class methodCallAST : public decafAST {
+	string Name;
+	decafStmtList* args;
+public:
+	methodCallAST(string Name, decafStmtList* args) 
+		: Name(Name), args(args) {}
+	~methodCallAST() { if (NULL != args) { delete args; } }
+	string str() {
+		return string("MethodCall(") + Name + "," + getString(args) + ")"; 
+	}
+};
+
+class ReturnStmtAST : public decafAST {
+	decafAST* ret;
+public:
+	ReturnStmtAST(decafAST* ret) : ret(ret) {}
+	~ReturnStmtAST() { if (NULL != ret) { delete ret; } }
+	string str() {
+		return string("ReturnStmt(") + getString(ret) + ")";
+	}
+};
+
+class assignAST : public decafAST {
+	string lvalue1;
+	decafAST* lvalue2;
+	decafAST* rvalue;
+public:
+	assignAST(string lvalue, decafAST* rvalue) 
+		: lvalue1(lvalue), lvalue2(NULL), rvalue(rvalue) {}
+	assignAST(string lvalue1, decafAST* lvalue2, decafAST* rvalue) 
+		: lvalue1(lvalue1), lvalue2(lvalue2), rvalue(rvalue) {}
+	~assignAST() {
+		if (NULL != lvalue2) {
+			delete lvalue2;
+		}
+		if (NULL != rvalue) {
+			delete rvalue;
+		}
+	}
+	string str() {
+		string res;
+		if (NULL == lvalue2) {
+			res = "AssignVar(" + lvalue1 + ",";
+		} else {
+			res = "AssignArrayLoc(" + lvalue1 + "," + getString(lvalue2) + ",";
+		}
+		return res + getString(rvalue) + ")";
 	}
 };
 

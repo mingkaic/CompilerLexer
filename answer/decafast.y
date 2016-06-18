@@ -202,7 +202,17 @@ id_list: T_ID { // one or more
     ;
 
 constant: T_INTCONSTANT { $$ = new constantAST("NumberExpr", *$1); delete $1; }
-    | T_CHARCONSTANT { $$ = new constantAST("CharacterExpr", *$1); delete $1; }
+    | T_CHARCONSTANT {
+        try {
+            string strrep = convertescape(*$1);
+            int val = strrep[1];
+            $$ = new constantAST("NumberExpr", to_string(val)); 
+            delete $1;
+        } catch (string e) {
+            yyerror(e.c_str());
+            return -1;
+        }
+    }
     | T_TRUE { $$ = new constantAST("BoolExpr", "true"); }
     | T_FALSE { $$ = new constantAST("BoolExpr", "false"); }
     ;
@@ -279,12 +289,10 @@ statement: block { $$ = $1; }
         $$ = new WhileStmtAST($3, bloc);
     }
     | T_FOR T_LPAREN assign_list T_SEMICOLON expr T_SEMICOLON assign_list T_RPAREN block {
-        decafStmtList* res = new decafStmtList();
         decafStmtList* init = (decafStmtList*) $3;
         decafStmtList* iter = (decafStmtList*) $7;
-        res->push_back(new ForStmtAST(init, $5, iter));
-        res->push_back($7);
-        $$ = res;
+        blockAST* bloc = (blockAST*) $9;
+        $$ = new ForStmtAST(init, $5, iter, bloc);
     }
     | T_RETURN T_SEMICOLON | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { 
         $$ = new ReturnStmtAST(NULL);
@@ -330,7 +338,14 @@ method_arg_list: method_arg { // one or more
     ;
 
 method_arg: expr { $$ = $1; } 
-    | T_STRINGCONSTANT { $$ = new constantAST("StringConstant", *$1); }
+    | T_STRINGCONSTANT { 
+        try {
+            $$ = new constantAST("StringConstant", convertescape(*$1));
+        } catch (string e) {
+            yyerror(e.c_str());
+            return -1;
+        }
+    }
     ;
 
 expr: T_ID { $$ = new rvalueAST(*$1); delete $1; }
