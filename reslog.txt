@@ -130,7 +130,13 @@ INFO:root:dev/16.ret Correct!
 INFO:root:Checking dev/decls.out
 INFO:root:dev/decls.out Correct!
 INFO:root:Checking dev/assoc.out
-INFO:root:dev/assoc.out Correct!
+INFO:root:Diff between reference and your output for dev/assoc.out
+INFO:root:
+--- reference
++++ your-output
+@@ -1 +1 @@
+-Program(None,Package(QuickSort,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(a,BinaryExpr(Plus,BinaryExpr(Plus,NumberExpr(1),NumberExpr(2)),NumberExpr(3))),AssignVar(b,BinaryExpr(Mult,BinaryExpr(Mult,NumberExpr(1),NumberExpr(2)),NumberExpr(3))),AssignVar(c,BinaryExpr(Or,BinaryExpr(Or,BinaryExpr(Or,BoolExpr(False),BoolExpr(True)),BoolExpr(True)),BoolExpr(False))),AssignVar(d,BinaryExpr(Div,BinaryExpr(Div,NumberExpr(1),NumberExpr(2)),UnaryExpr(UnaryMinus,NumberExpr(3)))),AssignVar(e,BinaryExpr(Mult,BinaryExpr(Mult,BinaryExpr(Mult,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(3)),UnaryExpr(UnaryMinus,NumberExpr(4))))))))
++Program(None,Package(QuickSort,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(a,BinaryExpr(Plus,BinaryExpr(Plus,NumberExpr(1),NumberExpr(2)),NumberExpr(3))),AssignVar(b,BinaryExpr(Mult,BinaryExpr(Mult,NumberExpr(1),NumberExpr(2)),NumberExpr(3))),AssignVar(c,BinaryExpr(Or,BoolExpr(False),BinaryExpr(Or,BoolExpr(True),BinaryExpr(Or,BoolExpr(True),BoolExpr(False))))),AssignVar(d,BinaryExpr(Div,BinaryExpr(Div,NumberExpr(1),NumberExpr(2)),UnaryExpr(UnaryMinus,NumberExpr(3)))),AssignVar(e,BinaryExpr(Mult,BinaryExpr(Mult,BinaryExpr(Mult,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(3)),UnaryExpr(UnaryMinus,NumberExpr(4))))))))
 INFO:root:Checking dev/charvals-5.out
 INFO:root:dev/charvals-5.out Correct!
 INFO:root:Checking dev/charvals-8.out
@@ -206,7 +212,13 @@ INFO:root:dev/expr-testfile-10.out Correct!
 INFO:root:Checking dev/stringescapequote.out
 INFO:root:dev/stringescapequote.out Correct!
 INFO:root:Checking dev/expr-testfile-2.out
-INFO:root:dev/expr-testfile-2.out Correct!
+INFO:root:Diff between reference and your output for dev/expr-testfile-2.out
+INFO:root:
+--- reference
++++ your-output
+@@ -1 +1 @@
+-Program(ExternFunction(print_int,VoidType,VarDef(IntType)),Package(Test,None,Method(main,IntType,None,MethodBlock(VarDef(x,IntType),VarDef(y,BoolType),VarDef(z,BoolType),AssignVar(x,BinaryExpr(Plus,BinaryExpr(Plus,BinaryExpr(Plus,NumberExpr(2),BinaryExpr(Mult,NumberExpr(2),NumberExpr(3))),NumberExpr(5)),BinaryExpr(Minus,BinaryExpr(Mult,NumberExpr(43),NumberExpr(23)),NumberExpr(44)))),AssignVar(x,UnaryExpr(UnaryMinus,VariableExpr(x))),AssignVar(y,BoolExpr(True)),AssignVar(z,BoolExpr(False)),AssignVar(y,BinaryExpr(Or,BinaryExpr(And,BoolExpr(True),VariableExpr(y)),VariableExpr(z))),MethodCall(print_int,UnaryExpr(UnaryMinus,VariableExpr(x)))))))
++Program(ExternFunction(print_int,VoidType,VarDef(IntType)),Package(Test,None,Method(main,IntType,None,MethodBlock(VarDef(x,IntType),VarDef(y,BoolType),VarDef(z,BoolType),AssignVar(x,BinaryExpr(Plus,BinaryExpr(Plus,BinaryExpr(Plus,NumberExpr(2),BinaryExpr(Mult,NumberExpr(2),NumberExpr(3))),NumberExpr(5)),BinaryExpr(Minus,BinaryExpr(Mult,NumberExpr(43),NumberExpr(23)),NumberExpr(44)))),AssignVar(x,UnaryExpr(UnaryMinus,VariableExpr(x))),AssignVar(y,BoolExpr(True)),AssignVar(z,BoolExpr(False)),AssignVar(y,BinaryExpr(And,BoolExpr(True),BinaryExpr(Or,VariableExpr(y),VariableExpr(z)))),MethodCall(print_int,UnaryExpr(UnaryMinus,VariableExpr(x)))))))
 INFO:root:Checking dev/charescapes-7.out
 INFO:root:dev/charescapes-7.out Correct!
 INFO:root:Checking dev/onlymethods.out
@@ -246,13 +258,7 @@ INFO:root:dev/break.out Correct!
 INFO:root:Checking dev/returnnoparens.ret
 INFO:root:dev/returnnoparens.ret Correct!
 INFO:root:Checking dev/arith1.out
-INFO:root:Diff between reference and your output for dev/arith1.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Minus,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(3)),BinaryExpr(Mod,BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(10))),BinaryExpr(Leftshift,BinaryExpr(Div,BinaryExpr(Mult,NumberExpr(5),NumberExpr(2)),NumberExpr(20)),NumberExpr(2)))),AssignVar(flag,BinaryExpr(Or,VariableExpr(a),BinaryExpr(And,VariableExpr(b),UnaryExpr(Not,VariableExpr(c)))))))))
-+Program(None,Package(foo,None,Method(main,VoidType,None,MethodBlock(None,AssignVar(size,BinaryExpr(Minus,BinaryExpr(Plus,BinaryExpr(Rightshift,NumberExpr(1),NumberExpr(3)),BinaryExpr(Mod,BinaryExpr(Div,NumberExpr(1),UnaryExpr(UnaryMinus,NumberExpr(2))),NumberExpr(10))),BinaryExpr(Leftshift,BinaryExpr(Div,BinaryExpr(Mult,NumberExpr(5),NumberExpr(2)),NumberExpr(20)),NumberExpr(2)))),AssignVar(flag,BinaryExpr(And,BinaryExpr(Or,VariableExpr(a),VariableExpr(b)),UnaryExpr(Not,VariableExpr(c))))))))
+INFO:root:dev/arith1.out Correct!
 INFO:root:Checking dev/arith3.ret
 INFO:root:dev/arith3.ret Correct!
 INFO:root:Checking dev/charexprprint.out

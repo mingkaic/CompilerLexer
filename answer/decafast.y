@@ -77,7 +77,7 @@ using namespace std;
 %type <ast> field_decl id_list constant
 %type <ast> param_list block var_list statement_list statement
 %type <ast> assign_list assign method_call method_arg_list method_arg
-%type <ast> expr top_op
+%type <ast> expr and_level
 %type <ast> comp_level comp_op
 %type <ast> plus_level plus_op
 %type <ast> mult_level mult_op 
@@ -349,8 +349,16 @@ method_arg: expr { $$ = $1; }
     }
     ;
 
-expr: comp_level { $$ = $1; }
-    | expr top_op comp_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+expr: and_level { $$ = $1; }
+    | expr T_OR and_level {
+        $$ = new opAST($1, new terminalAST("Or"), $3); 
+    }
+    ;
+
+and_level: comp_level { $$ = $1; }
+    | and_level T_AND comp_level {
+        $$ = new opAST($1, new terminalAST("And"), $3); 
+    }
     ;
 
 comp_level: plus_level { $$ = $1; }
@@ -375,10 +383,6 @@ to_endpoint: T_ID { $$ = new rvalueAST(*$1); delete $1; }
     | constant { $$ = $1; }
     | T_LPAREN expr T_RPAREN { $$ = $2; }
     | T_MINUS to_endpoint { $$ = new opAST($2, new terminalAST("UnaryMinus")); }
-    ;
-
-top_op: T_AND { $$ = new terminalAST("And"); }
-    | T_OR { $$ = new terminalAST("Or"); }
     ;
 
 comp_op: T_EQ { $$ = new terminalAST("Eq"); }
