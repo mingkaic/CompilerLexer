@@ -96,19 +96,19 @@ public:
 	string str() { return commaList<class decafAST *>(stmts); }
 };
 
-class FieldDecl : public decafAST {
+class FieldDeclAST : public decafAST {
 	string Name;
 	string arrNum;
 	decafAST* Type;
 	constantAST* constant;
 public:
-	FieldDecl(string Name, decafAST* Type)
+	FieldDeclAST(string Name, decafAST* Type)
 		: Name(Name), Type(Type), arrNum(""), constant(NULL) {}
-	FieldDecl(string Name, decafAST* Type, string arrNum) 
+	FieldDeclAST(string Name, decafAST* Type, string arrNum) 
 		: Name(Name), Type(Type), arrNum(arrNum), constant(NULL) {}
-	FieldDecl(string Name, decafAST* Type, constantAST* constant)
+	FieldDeclAST(string Name, decafAST* Type, constantAST* constant)
 		: Name(Name), Type(Type), arrNum(""), constant(constant) {}
-	~FieldDecl() {
+	~FieldDeclAST() {
 		if (NULL != Type) {
 			delete Type;
 		}
@@ -121,7 +121,7 @@ public:
 			return string("AssignGlobalVar(") + Name + "," 
 				+ getString(Type) + "," + getString(constant) + ")";
 		}
-		string res = string("FieldDecl(") + Name + "," + getString(Type) + ",";
+		string res = string("FieldDeclAST(") + Name + "," + getString(Type) + ",";
 		if (arrNum.size() > 0) {
 			res += "Array(" + arrNum + ")";
 		} else {
@@ -144,6 +144,47 @@ public:
 	}
 };
 
+class opAST : public decafAST {
+	decafAST* lvalue;
+	decafAST* rvalue;
+	terminalAST* op;
+public:
+	opAST(decafAST* lvalue, terminalAST* op, decafAST* rvalue = NULL)
+		: lvalue(lvalue), rvalue(rvalue), op(op) {}
+	~opAST() {
+		if (NULL != lvalue) { 
+			delete lvalue;
+		}
+		if (NULL != rvalue) { 
+			delete rvalue;
+		}
+		if (NULL != op) { 
+			delete op;
+		}
+	}
+	string str() {
+		if (NULL == rvalue) {
+			return string("UnaryExpr(") + getString(op) + "," + getString(lvalue) + ")";
+		}
+		return string("BinaryExpr(") + getString(op) + "," + getString(lvalue) + "," + getString(rvalue) + ")"; 
+	}
+};
+
+class rvalueAST : public decafAST {
+	string id;
+	decafAST* index;
+public:
+	rvalueAST(string identifier, decafAST* index = NULL) 
+		: id(identifier), index(index) {}
+	~rvalueAST() { if (NULL != index) { delete index; } }
+	string str() {
+		if (NULL == index) {
+			return string ("VariableExpr(") + id + ")";
+		}
+		return string("ArrayLocExpr(") + id + "," + getString(index) + ")"; 
+	}
+};
+
 class methodCallAST : public decafAST {
 	string Name;
 	decafStmtList* args;
@@ -156,13 +197,13 @@ public:
 	}
 };
 
-class ReturnStmt : public decafAST {
+class ReturnStmtAST : public decafAST {
 	decafAST* ret;
 public:
-	ReturnStmt(decafAST* ret) : ret(ret) {}
-	~ReturnStmt() { if (NULL != ret) { delete ret; } }
+	ReturnStmtAST(decafAST* ret) : ret(ret) {}
+	~ReturnStmtAST() { if (NULL != ret) { delete ret; } }
 	string str() {
-		return string("ReturnStmt(") + getString(ret) + ")";
+		return string("ReturnStmtAST(") + getString(ret) + ")";
 	}
 };
 
@@ -236,13 +277,13 @@ public:
 	}
 };
 
-class WhileStmt : public decafAST {
+class WhileStmtAST : public decafAST {
 	decafAST* condition;
 	blockAST* block;
 public:
-	WhileStmt(decafAST* condition, blockAST* block)
+	WhileStmtAST(decafAST* condition, blockAST* block)
 		: condition(condition), block(block) {}
-	~WhileStmt() {
+	~WhileStmtAST() {
 		if (NULL != condition) {
 			delete condition;
 		}
@@ -251,18 +292,18 @@ public:
 		}
 	}
 	string str() {
-		return string("WhileStmt(") + getString(condition) + "," + getString(block) + ")"; 
+		return string("WhileStmtAST(") + getString(condition) + "," + getString(block) + ")"; 
 	}
 };
 
-class ForStmt : public decafAST {
+class ForStmtAST : public decafAST {
 	decafStmtList* init;
 	decafAST* condition;
 	decafStmtList* iter;
 public:
-	ForStmt(decafStmtList* init, decafAST* condition, decafStmtList* iter)
+	ForStmtAST(decafStmtList* init, decafAST* condition, decafStmtList* iter)
 		: init(init), condition(condition), iter(iter) {}
-	~ForStmt() {
+	~ForStmtAST() {
 		if (NULL != init) { 
 			delete init; 
 		}
@@ -274,7 +315,7 @@ public:
 		}
 	}
 	string str() {
-		return string("ForStmt(") + getString(init) + "," +
+		return string("ForStmtAST(") + getString(init) + "," +
 			getString(condition) + "," + getString(iter) + ")";
 	}
 };
@@ -300,7 +341,7 @@ public:
 	}
 	string str() {
         return string("Method(") + Name + "," + getString(Type) + "," + 
-        	getString(arrParam) + "," + getString(block) + ")";
+        	getString(arrParam) + ",Method" + getString(block) + ")";
 	}
 };
 

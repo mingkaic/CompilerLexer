@@ -77,7 +77,7 @@ using namespace std;
 %type <ast> field_decl id_list constant
 %type <ast> param_list block var_list statement_list statement
 %type <ast> assign_list assign method_call method_arg_list method_arg
-%type <ast> expr bin_op arithmetic_op bool_op un_op
+%type <ast> expr bin_op un_op
 
 %%
 
@@ -160,7 +160,7 @@ field_decl: T_VAR id_list decaf_type T_SEMICOLON {
         temporaryAST* ids = (temporaryAST*) $2;
         terminalAST* t = (terminalAST*) $3;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDecl(**it, new terminalAST(*t)));
+            res->push_back(new FieldDeclAST(**it, new terminalAST(*t)));
         }
         delete t;
         delete ids;
@@ -168,14 +168,14 @@ field_decl: T_VAR id_list decaf_type T_SEMICOLON {
     }
     | T_VAR T_ID decaf_type T_SEMICOLON { 
         // for some reason, bison has problems with single ID id_list followed by decaf_type
-        $$ = new FieldDecl(*$2, $3);
+        $$ = new FieldDeclAST(*$2, $3);
     }
     | T_VAR id_list T_LSB T_INTCONSTANT T_RSB decaf_type T_SEMICOLON { 
         decafStmtList* res = new decafStmtList();
         temporaryAST* ids = (temporaryAST*) $2;
         terminalAST* t = (terminalAST*) $6;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDecl(**it, new terminalAST(*t), *$4));
+            res->push_back(new FieldDeclAST(**it, new terminalAST(*t), *$4));
         }
         delete t;
         delete ids;
@@ -183,7 +183,7 @@ field_decl: T_VAR id_list decaf_type T_SEMICOLON {
     }
     | T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON { 
         decafStmtList* res = new decafStmtList();
-        res->push_back(new FieldDecl(*$2, $3, (constantAST*) $5));
+        res->push_back(new FieldDeclAST(*$2, $3, (constantAST*) $5));
         delete $2;
         $$ = res;
     }
@@ -276,20 +276,20 @@ statement: block { $$ = $1; }
         $$ = new IfElseAST($3, ifBloc, elseBloc);}
     | T_WHILE T_LPAREN expr T_RPAREN block {
         blockAST* bloc = (blockAST*) $5;
-        $$ = new WhileStmt($3, bloc);
+        $$ = new WhileStmtAST($3, bloc);
     }
     | T_FOR T_LPAREN assign_list T_SEMICOLON expr T_SEMICOLON assign_list T_RPAREN block {
         decafStmtList* res = new decafStmtList();
         decafStmtList* init = (decafStmtList*) $3;
         decafStmtList* iter = (decafStmtList*) $7;
-        res->push_back(new ForStmt(init, $5, iter));
+        res->push_back(new ForStmtAST(init, $5, iter));
         res->push_back($7);
         $$ = res;
     }
     | T_RETURN T_SEMICOLON | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { 
-        $$ = new ReturnStmt(NULL);
+        $$ = new ReturnStmtAST(NULL);
     }
-    | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnStmt($3); }
+    | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST($3); }
     | T_BREAK T_SEMICOLON { $$ = new terminalAST("BreakStmt"); }
     | T_CONTINUE T_SEMICOLON { $$ = new terminalAST("ContinueStmt"); }
     ;
@@ -333,40 +333,34 @@ method_arg: expr { $$ = $1; }
     | T_STRINGCONSTANT { $$ = new constantAST("StringConstant", *$1); }
     ;
 
-expr: T_ID {}
-    | method_call {}
-    | constant {}
-    | expr bin_op expr {}
-    | un_op expr {}
-    | T_LPAREN expr T_RPAREN {}
-    | T_ID T_LSB expr T_RSB {}
+expr: T_ID { $$ = new rvalueAST(*$1); delete $1; }
+    | T_ID T_LSB expr T_RSB { $$ = new rvalueAST(*$1, $3); delete $1; }
+    | T_LPAREN expr T_RPAREN { $$ = $2; }
+    | method_call { $$ = $1; }
+    | constant { $$ = $1; }
+    | expr bin_op expr { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    | un_op expr { $$ = new opAST($2, (terminalAST*) $1); }
     ;
 
-bin_op: arithmetic_op {}
-    | bool_op {}
+bin_op: T_PLUS { $$ = new terminalAST("Plus"); }
+    | T_MINUS { $$ = new terminalAST("Minus"); }
+    | T_MULT { $$ = new terminalAST("Mult"); }
+    | T_DIV { $$ = new terminalAST("Div"); }
+    | T_LEFTSHIFT { $$ = new terminalAST("Leftshift"); }
+    | T_RIGHTSHIFT { $$ = new terminalAST("Rightshift"); }
+    | T_MOD { $$ = new terminalAST("Mod"); }
+    | T_EQ { $$ = new terminalAST("Eq"); }
+    | T_NEQ { $$ = new terminalAST("Neq"); }
+    | T_LT { $$ = new terminalAST("Lt"); }
+    | T_LEQ { $$ = new terminalAST("Leq"); }
+    | T_GT { $$ = new terminalAST("Gt"); }
+    | T_GEQ { $$ = new terminalAST("Geq"); }
+    | T_AND { $$ = new terminalAST("And"); }
+    | T_OR { $$ = new terminalAST("Or"); }
     ;
 
-arithmetic_op: T_PLUS {}
-    | T_MINUS {}
-    | T_MULT {}
-    | T_DIV {}
-    | T_LEFTSHIFT {}
-    | T_RIGHTSHIFT {}
-    | T_MOD {}
-    ;
-
-bool_op: T_EQ {}
-    | T_NEQ {}
-    | T_LT {}
-    | T_LEQ {}
-    | T_GT {}
-    | T_GEQ {}
-    | T_AND {}
-    | T_OR {}
-    ;
-
-un_op: T_NOT {}
-    | T_MINUS {}
+un_op: T_NOT { $$ = new terminalAST("Not"); }
+    | T_MINUS { $$ = new terminalAST("UnaryMinus"); }
     ;
 
 %%

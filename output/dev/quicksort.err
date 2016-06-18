@@ -1,1 +1,2 @@
-syntax error
+decafast(25759,0x7fff76133000) malloc: *** error for object 0x7f9eba403d90: pointer being freed was not allocated
+*** set a breakpoint in malloc_error_break to debug

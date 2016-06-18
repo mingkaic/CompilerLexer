@@ -1,0 +1,1 @@
+Program(None,Package(C,FieldDeclAST(x,IntType,Scalar),FieldDeclAST(size,IntType,Scalar),Method(f,VoidType,None,MethodBlock(VarDef(x,IntType),VarDef(i,IntType),AssignVar(size,NumberExpr(100))))))
