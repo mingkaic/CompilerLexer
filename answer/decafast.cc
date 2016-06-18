@@ -31,12 +31,46 @@ string commaList(list<T> vec) {
     string s("");
     for (typename list<T>::iterator i = vec.begin(); i != vec.end(); i++) { 
         s = s + (s.empty() ? string("") : string(",")) + (*i)->str(); 
-    }   
+    }
     if (s.empty()) {
         s = string("None");
     }   
     return s;
 }
+
+class terminalAST : public decafAST {
+	string Name;
+public:
+	terminalAST(string name) : Name(name) {}
+	string str() { return Name; }
+};
+
+class temporaryAST : public decafAST {
+public:
+	list<string*> types;
+	~temporaryAST() {
+		for (list<string*>::iterator i = types.begin(); i != types.end(); i++) { 
+			delete *i;
+		}
+	}
+};
+
+class constantAST : public decafAST {
+	string wrap;
+	string data;
+public:
+	constantAST(string wrap, string data) : wrap(wrap), data(data) {}
+	string str() { return wrap + "(" + data + ")"; }
+};
+
+class vardefAST : public decafAST {
+	decafAST* content;
+public:
+	vardefAST(decafAST* content) : content(content) {}
+	vardefAST(string in) { content = new terminalAST(in); }
+	~vardefAST() { if (NULL != content) { delete content; } }
+	string str() { return string("VarDef(") + getString(content) + ")"; }
+};
 
 /// decafStmtList - List of Decaf statements
 class decafStmtList : public decafAST {
@@ -54,6 +88,41 @@ public:
 	string str() { return commaList<class decafAST *>(stmts); }
 };
 
+class FieldDecl : public decafAST {
+	string Name;
+	string arrNum;
+	decafAST* Type;
+	constantAST* constant;
+public:
+	FieldDecl(string Name, decafAST* Type)
+		: Name(Name), Type(Type), arrNum(""), constant(NULL) {}
+	FieldDecl(string Name, decafAST* Type, string arrNum) 
+		: Name(Name), Type(Type), arrNum(arrNum), constant(NULL) {}
+	FieldDecl(string Name, decafAST* Type, constantAST* constant)
+		: Name(Name), Type(Type), arrNum(""), constant(constant) {}
+	~FieldDecl() {
+		if (NULL != Type) {
+			delete Type;
+		}
+		if (NULL != constant) {
+			delete constant;
+		}
+	}
+	string str() {
+		if (NULL != constant) {
+			return string("AssignGlobalVar(") + Name + "," 
+				+ getString(Type) + "," + getString(constant) + ")";
+		}
+		string res = string("FieldDecl(") + Name + "," + getString(Type) + ",";
+		if (arrNum.size() > 0) {
+			res += "Array(" + arrNum + ")";
+		} else {
+			res += "Scalar";
+		}
+		return res + ")";
+	}
+};
+
 class PackageAST : public decafAST {
 	string Name;
 	decafStmtList *FieldDeclList;
@@ -67,6 +136,21 @@ public:
 	}
 	string str() { 
 		return string("Package") + "(" + Name + "," + getString(FieldDeclList) + "," + getString(MethodDeclList) + ")";
+	}
+};
+
+class ExternAST : public decafAST {
+	string Name;
+	terminalAST* RetType;
+	decafStmtList* typelist;
+public:
+	ExternAST(string identifier, terminalAST* ret, decafStmtList* param) 
+		: Name(identifier), RetType(ret), typelist(param) {}
+	~ExternAST() {
+		if (NULL != typelist) { delete typelist; }
+	}
+	string str() {
+		return string("ExternFunction") + "(" + Name + "," + getString(RetType) + "," + getString(typelist) + ")"; 
 	}
 };
 

@@ -11,7 +11,7 @@ int yyerror(char *);
 // print AST?
 bool printAST = true;
 
-#include "default.cc"
+#include "decafast.cc"
 
 using namespace std;
 
@@ -72,6 +72,9 @@ using namespace std;
 %token <sval> T_STRINGCONSTANT
 
 %type <ast> extern_list decafpackage
+%type <ast> extern_param extern_type method_type type
+%type <ast> field_list method_list 
+%type <ast> field_decl id_list constant
 
 %%
 
@@ -87,57 +90,119 @@ program: extern_list decafpackage
     }
 
 extern_list: /* empty */ { decafStmtList *slist = new decafStmtList(); $$ = slist; }
+    | T_EXTERN T_FUNC T_ID T_LPAREN T_RPAREN method_type T_SEMICOLON extern_list {
+        string* id = $3;
+        terminalAST* methodT = (terminalAST*) $6;
+        ExternAST* ext = new ExternAST(*id, methodT, NULL);
+        delete id;
+        $$ = ext;
+    }
     | T_EXTERN T_FUNC T_ID T_LPAREN extern_param T_RPAREN method_type T_SEMICOLON extern_list {
-
+        string* id = $3;
+        terminalAST* methodT = (terminalAST*) $7;
+        decafStmtList* ex_list = (decafStmtList*) $5;
+        ExternAST* ext = new ExternAST(*id, methodT, ex_list);
+        delete id;
+        $$ = ext;
     }
     ;
 
-extern_param: /* empty */ {}
-    | extern_type T_COMMA extern_param {} // many
-    | extern_type {} // one
+extern_param: extern_type T_COMMA extern_param { // one to many
+        decafStmtList* ex_list = (decafStmtList*) $3;
+        // assert that ex_list != NULL
+        ex_list->push_front($1);
+        $$ = ex_list;
+    } 
+    | extern_type {
+        decafStmtList* ex_list = new decafStmtList();
+        ex_list->push_back($1);
+        $$ = ex_list;
+    }
     ;
 
-extern_type: T_STRINGTYPE {}
-    | method_type {}
+extern_type: T_STRINGTYPE { $$ = new vardefAST("StringType"); }
+    | method_type { $$ = new vardefAST($1); }
     ;
 
-method_type: T_VOID {}
-    | type {}
+method_type: T_VOID { $$ = new terminalAST("VoidType"); }
+    | type { $$ = $1; }
     ;
 
-type: T_INTTYPE {}
-    | T_BOOLTYPE {}
+type: T_INTTYPE { $$ = new terminalAST("IntType"); }
+    | T_BOOLTYPE { $$ = new terminalAST("BoolType"); }
     ;
 
-decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB 
-    { $$ = new PackageAST(*$2, new decafStmtList(), new decafStmtList()); delete $2; }
+decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB {
+        decafStmtList* fields = (decafStmtList*) $4;
+        decafStmtList* stmts = NULL; // (decafStmtList*) $5;
+        $$ = new PackageAST(*$2, fields, stmts); 
+        delete $2; 
+    }
     ;
 
-field_list: /* empty */ {} // zero or more
-    | field_decl field_list {} 
+field_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
+    | field_decl field_list {
+        decafStmtList* fields = (decafStmtList*) $2;
+        fields->push_front($1);
+        $$ = fields;
+    } 
     ;
 
-field_decl: T_VAR id_list type T_SEMICOLON {}
-    | T_VAR id_list arraytype T_SEMICOLON {}
-    | T_VAR T_ID type T_EQ constant T_SEMICOLON {}
+field_decl: T_VAR id_list type T_SEMICOLON {
+        decafStmtList* res = new decafStmtList();
+        temporaryAST* ids = (temporaryAST*) $2;
+        terminalAST* t = (terminalAST*) $3;
+        for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
+            res->push_back(new FieldDecl(**it, new terminalAST(*t)));
+        }
+        delete t;
+        delete ids;
+        $$ = res;
+    }
+    | T_VAR T_ID type T_SEMICOLON { 
+        // for some reason, bison has problems with single ID id_list followed by type
+        $$ = new FieldDecl(*$2, $3);
+    }
+    | T_VAR id_list T_LSB T_INTCONSTANT T_RSB type T_SEMICOLON { 
+        decafStmtList* res = new decafStmtList();
+        temporaryAST* ids = (temporaryAST*) $2;
+        terminalAST* t = (terminalAST*) $6;
+        for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
+            res->push_back(new FieldDecl(**it, new terminalAST(*t), *$4));
+        }
+        delete t;
+        delete ids;
+        $$ = res;
+    }
+    | T_VAR T_ID type T_ASSIGN constant T_SEMICOLON { 
+        decafStmtList* res = new decafStmtList();
+        res->push_back(new FieldDecl(*$2, $3, (constantAST*) $5));
+        delete $2;
+        $$ = res;
+    }
     ;
 
-id_list: T_ID T_COMMA id_list {} // one or more
-    | T_ID {}
+id_list: T_ID {
+        temporaryAST* res = new temporaryAST(); 
+        res->types.push_back($1);
+        $$ = res;
+    }
+    | id_list T_COMMA T_ID { // one or more
+        temporaryAST* res = (temporaryAST*) $1;
+        res->types.push_back($3);
+        $$ = res;
+    }
     ;
 
-arraytype: T_LSB T_INTCONSTANT T_RSB type {}
+constant: T_INTCONSTANT { $$ = new constantAST("NumberExpr", *$1); delete $1; }
+    | T_CHARCONSTANT { $$ = new constantAST("CharacterExpr", *$1); delete $1; }
+    | T_TRUE { $$ = new constantAST("BoolExpr", "true"); }
+    | T_FALSE { $$ = new constantAST("BoolExpr", "false"); }
     ;
 
-constant: T_INTCONSTANT {}
-    | T_CHARCONSTANT {}
-    | T_TRUE {}
-    | T_FALSE {}
-    ;
-
-method_list: /* empty */ {} // zero or more
-    | T_FUNC T_ID T_LPAREN T_RPAREN method_type block method_list
-    | T_FUNC T_ID T_LPAREN param_list T_RPAREN method_type block method_list
+method_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
+    | T_FUNC T_ID T_LPAREN T_RPAREN method_type block method_list {}
+    | T_FUNC T_ID T_LPAREN param_list T_RPAREN method_type block method_list {}
     ;
 
 param_list: T_ID type T_COMMA param_list{} // one or more
@@ -173,7 +238,7 @@ assign_list: assign T_COMMA assign_list {} // one or more
     | assign {}
     ;
 
-assign: lvalue T_EQ expr {}
+assign: lvalue T_ASSIGN expr {}
     ;
 
 lvalue: T_ID T_LSB expr T_RSB {}

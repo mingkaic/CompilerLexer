@@ -1,0 +1,5 @@
+extern func print_int(bool) void;
+
+package Test {
+	var x int = 32;
+}
