@@ -63,13 +63,21 @@ public:
 	string str() { return wrap + "(" + data + ")"; }
 };
 
-class vardefAST : public decafAST {
-	decafAST* content;
+class typedSymAST : public decafAST {
+	string content;
+	decafAST* Type;
 public:
-	vardefAST(decafAST* content) : content(content) {}
-	vardefAST(string in) { content = new terminalAST(in); }
-	~vardefAST() { if (NULL != content) { delete content; } }
-	string str() { return string("VarDef(") + getString(content) + ")"; }
+	typedSymAST(decafAST* Type) : content(""), Type(Type) {}
+	typedSymAST(string in) : content("") { Type = new terminalAST(in); }
+	typedSymAST(string content, decafAST* Type) : content(content), Type(Type) {}
+	~typedSymAST() { if (NULL != Type) { delete Type; } }
+	string str() { 
+		string res = "VarDef(";
+		if (0 != content.size()) {
+			res += content + ",";
+		}
+		return res + getString(Type) + ")"; 
+	}
 };
 
 /// decafStmtList - List of Decaf statements
@@ -123,6 +131,179 @@ public:
 	}
 };
 
+class ExternAST : public decafAST {
+	string Name;
+	terminalAST* RetType;
+	decafStmtList* typelist;
+public:
+	ExternAST(string identifier, terminalAST* ret, decafStmtList* param) 
+		: Name(identifier), RetType(ret), typelist(param) {}
+	~ExternAST() { if (NULL != typelist) { delete typelist; } }
+	string str() {
+		return string("ExternFunction(") + Name + "," + getString(RetType) + "," + getString(typelist) + ")"; 
+	}
+};
+
+class methodCallAST : public decafAST {
+	string Name;
+	decafStmtList* args;
+public:
+	methodCallAST(string Name, decafStmtList* args) 
+		: Name(Name), args(args) {}
+	~methodCallAST() { if (NULL != args) { delete args; } }
+	string str() {
+		return string("MethodCall(") + Name + "," + getString(args) + ")"; 
+	}
+};
+
+class ReturnStmt : public decafAST {
+	decafAST* ret;
+public:
+	ReturnStmt(decafAST* ret) : ret(ret) {}
+	~ReturnStmt() { if (NULL != ret) { delete ret; } }
+	string str() {
+		return string("ReturnStmt(") + getString(ret) + ")";
+	}
+};
+
+class assignAST : public decafAST {
+	string lvalue1;
+	decafAST* lvalue2;
+	decafAST* rvalue;
+public:
+	assignAST(string lvalue, decafAST* rvalue) 
+		: lvalue1(lvalue), lvalue2(NULL), rvalue(rvalue) {}
+	assignAST(string lvalue1, decafAST* lvalue2, decafAST* rvalue) 
+		: lvalue1(lvalue1), lvalue2(lvalue2), rvalue(rvalue) {}
+	~assignAST() {
+		if (NULL != lvalue2) {
+			delete lvalue2;
+		}
+		if (NULL != rvalue) {
+			delete rvalue;
+		}
+	}
+	string str() {
+		string res;
+		if (NULL == lvalue2) {
+			res = "AssignVar(" + lvalue1 + ",";
+		} else {
+			res = "AssignArrayLoc(" + lvalue1 + "," + getString(lvalue2) + ",";
+		}
+		return res + getString(rvalue) + ")";
+	}
+};
+
+class blockAST : public decafAST {
+	decafStmtList* varList;
+	decafStmtList* stateList;
+public:
+	blockAST(decafStmtList* varList, decafStmtList* stateList) : varList(varList), stateList(stateList) {}
+	~blockAST() {
+		if (NULL != varList) {
+			delete varList;
+		}
+		if (NULL != stateList) {
+			delete stateList;
+		}
+	}
+	string str() {
+        return string("Block(") + getString(varList) + "," + getString(stateList) + ")";
+	}
+};
+
+class IfElseAST : public decafAST {
+	decafAST* condition;
+	blockAST* if_block;
+	blockAST* else_block;
+public:
+	IfElseAST(decafAST* condition, blockAST* if_block, blockAST* else_block)
+		: condition(condition), if_block(if_block), else_block(else_block) {}
+	~IfElseAST() {
+		if (NULL != condition) {
+			delete condition;
+		}
+		if (NULL != if_block) {
+			delete if_block;
+		}
+		if (NULL != else_block) {
+			delete else_block;
+		}
+	}
+	string str() {
+		return string("IfStmt(") + getString(condition) + "," + 
+			getString(if_block) + "," + getString(else_block) + ")";
+	}
+};
+
+class WhileStmt : public decafAST {
+	decafAST* condition;
+	blockAST* block;
+public:
+	WhileStmt(decafAST* condition, blockAST* block)
+		: condition(condition), block(block) {}
+	~WhileStmt() {
+		if (NULL != condition) {
+			delete condition;
+		}
+		if (NULL != block) {
+			delete block;
+		}
+	}
+	string str() {
+		return string("WhileStmt(") + getString(condition) + "," + getString(block) + ")"; 
+	}
+};
+
+class ForStmt : public decafAST {
+	decafStmtList* init;
+	decafAST* condition;
+	decafStmtList* iter;
+public:
+	ForStmt(decafStmtList* init, decafAST* condition, decafStmtList* iter)
+		: init(init), condition(condition), iter(iter) {}
+	~ForStmt() {
+		if (NULL != init) { 
+			delete init; 
+		}
+		if (NULL != condition) { 
+			delete condition; 
+		}
+		if (NULL != iter) { 
+			delete iter; 
+		}
+	}
+	string str() {
+		return string("ForStmt(") + getString(init) + "," +
+			getString(condition) + "," + getString(iter) + ")";
+	}
+};
+
+class MethodDeclAST : public decafAST {
+	string Name;
+	decafAST* Type;
+	decafStmtList* arrParam;
+	blockAST* block;
+public:
+	MethodDeclAST(string Name, decafAST* retType, decafStmtList* params, blockAST* block)
+		: Name(Name), Type(retType), arrParam(params), block(block) {}
+	~MethodDeclAST() {
+		if (NULL != Type) {
+			delete Type;
+		}
+		if (NULL != arrParam) {
+			delete arrParam;
+		}
+		if (NULL != block) {
+			delete block;
+		}
+	}
+	string str() {
+        return string("Method(") + Name + "," + getString(Type) + "," + 
+        	getString(arrParam) + "," + getString(block) + ")";
+	}
+};
+
 class PackageAST : public decafAST {
 	string Name;
 	decafStmtList *FieldDeclList;
@@ -136,21 +317,6 @@ public:
 	}
 	string str() { 
 		return string("Package") + "(" + Name + "," + getString(FieldDeclList) + "," + getString(MethodDeclList) + ")";
-	}
-};
-
-class ExternAST : public decafAST {
-	string Name;
-	terminalAST* RetType;
-	decafStmtList* typelist;
-public:
-	ExternAST(string identifier, terminalAST* ret, decafStmtList* param) 
-		: Name(identifier), RetType(ret), typelist(param) {}
-	~ExternAST() {
-		if (NULL != typelist) { delete typelist; }
-	}
-	string str() {
-		return string("ExternFunction") + "(" + Name + "," + getString(RetType) + "," + getString(typelist) + ")"; 
 	}
 };
 

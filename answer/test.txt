@@ -1,5 +1,10 @@
-extern func print_int(bool) void;
+extern func print_int(int) void;
+extern func print_bool(bool) int;
 
 package Test {
 	var x int = 32;
+
+	func main() void {
+		var i int;
+	}
 }
