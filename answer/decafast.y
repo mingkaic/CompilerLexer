@@ -132,7 +132,7 @@ extern_param: extern_type T_COMMA extern_param { // one to many
     ;
 
 extern_type: T_STRINGTYPE { $$ = new typedSymAST("StringType"); }
-    | method_type { $$ = new typedSymAST($1); }
+    | decaf_type { $$ = new typedSymAST($1); }
     ;
 
 method_type: T_VOID { $$ = new terminalAST("VoidType"); }

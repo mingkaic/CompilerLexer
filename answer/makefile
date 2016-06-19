@@ -5,7 +5,7 @@ bindir=.
 rm=/bin/rm -f
 mv=/bin/mv -f
 targets=
-cpptargets=decafast default
+cpptargets=decafast
 
 all: $(targets) $(cpptargets)
 
