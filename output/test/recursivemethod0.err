@@ -1,0 +1,17 @@
+output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0
+llvmas: /Users/cmk/llvm/bin/llvm-as
+llc: /Users/cmk/llvm/bin/llc
+cc: gcc
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr ... ok
+; ModuleID = 'Test'
+
+define i32 @main() {
+entry:
+  ret i32 0
+}
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.s" ... ok
+linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c" ... ok
+running:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/test/llvm/recursivemethod0.llvm.exec ... ok

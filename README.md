@@ -2,27 +2,32 @@
 Naming your files
 -----------------
 
-The file `Decaf.asdl` contains the specification of
-the output. The input is specified in the Decaf
-specification on the class web page.
+The file `decafexpr.asdl` contains the part of the abstract syntax
+tree for which you should implement code generation using LLVM.
 
-To create the default program, go to the answer directory
-and type in `make default`. To run the default program
-against the testcases, run the following commands:
+To create the default program, go to the answer directory and type
+in `make default`. To run the default program against the testcases,
+run the following commands:
 
     python zipout.py -r default
     python check.py
 
-In the answer directory use the following filenames for
-your homework solution:
+The output files are all saved to the `output` directory which has
+a sub-directory called `llvm` which contains all the intermediate
+LLVM files created for each input Decaf program.
 
-* Lex program: decafast.lex
-* Yacc program: decafast.y
+In the answer directory use the following filenames for your homework
+solution:
+
+* Lex program: decafexpr.lex
+* Yacc program: decafexpr.y
 
 We are going to use GNU `bison` as the implementation of `yacc`.
 
 If you have these filenames then you can use `make` to build your
-binary `decafast` from your Lex and Yacc programs.
+binary `decafexpr` from your Lex and Yacc programs.
+
+There are also helper make commands to check LLVM assembly programs.
 
 Make sure you have a common header file that looks something like
 the following that is included in both your Lex and Yacc program.
@@ -52,4 +57,15 @@ the following that is included in both your Lex and Yacc program.
 
     #endif
 
+## Testcases changed
+
+The testcases and references were updated on Jun 23, 2016. Now
+`zipout.py` calls `answer/llvm-run` to check if the LLVM assembly
+can be converted to a successfully running binary. Due to this
+change, a lot of `print_int` and `print_string` statements were
+added to the Decaf programs.
+
+Also, if the Decaf program has a call to `read_int` from the Decaf
+standard library then there must be a file with an `.in` suffix in
+the testcases directory which contains the input for `read_int`.
 
