@@ -1,17 +1,47 @@
-output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes
+output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes
 llvmas: /Users/cmk/llvm/bin/llvm-as
 llc: /Users/cmk/llvm/bin/llc
 cc: gcc
-codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr
-stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr ... ok
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
+
+declare void @print_int(i32)
 
 define i32 @main() {
 entry:
+  %c = alloca i32
+  store i32 9, i32* %c
+  %c1 = load i32, i32* %c
+  call void @print_int(i32 %c1)
+  store i32 11, i32* %c
+  %c2 = load i32, i32* %c
+  call void @print_int(i32 %c2)
+  store i32 13, i32* %c
+  %c3 = load i32, i32* %c
+  call void @print_int(i32 %c3)
+  store i32 10, i32* %c
+  %c4 = load i32, i32* %c
+  call void @print_int(i32 %c4)
+  store i32 7, i32* %c
+  %c5 = load i32, i32* %c
+  call void @print_int(i32 %c5)
+  store i32 12, i32* %c
+  %c6 = load i32, i32* %c
+  call void @print_int(i32 %c6)
+  store i32 8, i32* %c
+  %c7 = load i32, i32* %c
+  call void @print_int(i32 %c7)
+  store i32 92, i32* %c
+  %c8 = load i32, i32* %c
+  call void @print_int(i32 %c8)
+  store i32 39, i32* %c
+  %c9 = load i32, i32* %c
+  call void @print_int(i32 %c9)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.bc" ... ok
-converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.s" ... ok
-linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c" ... ok
-running:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/charescapes.llvm.exec ... ok
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.s" ... ok
+linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
+running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/charescapes.llvm.exec ... ok

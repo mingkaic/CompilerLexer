@@ -5,7 +5,18 @@
 _main:                                  ## @main
 	.cfi_startproc
 ## BB#0:                                ## %entry
+	pushq	%rax
+Ltmp0:
+	.cfi_def_cfa_offset 16
+	movl	$1, %edi
+	callq	_print_int
+	xorl	%edi, %edi
+	callq	_print_int
+	movl	$3, 4(%rsp)
+	movl	$3, %edi
+	callq	_print_int
 	xorl	%eax, %eax
+	popq	%rcx
 	retq
 	.cfi_endproc
 

@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/backward.llvm:1:1: error: expected top-level entity
+LogError: Unknown function referenced
+^

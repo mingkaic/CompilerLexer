@@ -111,6 +111,7 @@ class ZipOutput:
             if filename[-len(self.file_suffix):] == self.file_suffix:
                 base = filename[:-len(self.file_suffix)]
                 if os.path.exists(testfile_path):
+                    print testfile_path
                     self.run(testfile_path, output_path, base)
 
     def run_all(self):

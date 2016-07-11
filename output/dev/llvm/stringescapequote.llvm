@@ -1,6 +1,9 @@
 ; ModuleID = 'Test'
 
+declare void @print_string(i32*)
+
 define i32 @main() {
 entry:
+  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 96])
   ret i32 0
 }

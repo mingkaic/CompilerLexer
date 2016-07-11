@@ -1,17 +1,63 @@
-output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr
+output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr
 llvmas: /Users/cmk/llvm/bin/llvm-as
 llc: /Users/cmk/llvm/bin/llc
 cc: gcc
-codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr
-stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr ... ok
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
+
+declare void @print_int(i32)
+
+define void @test3(i32 %a, i32 %x) {
+entry:
+  %x2 = alloca i32
+  %a1 = alloca i32
+  %x3 = load i32, i32* %x2
+  call void @print_int(i32 %x3)
+  %a4 = load i32, i32* %a1
+  call void @print_int(i32 %a4)
+  ret void
+}
+
+define void @test2(i32 %x, i32 %a) {
+entry:
+  %a2 = alloca i32
+  %x1 = alloca i32
+  %x3 = load i32, i32* %x1
+  call void @print_int(i32 %x3)
+  %a4 = load i32, i32* %a2
+  call void @print_int(i32 %a4)
+  %a5 = load i32, i32* %a2
+  %nottmp = xor i32 %a5, -1
+  %x6 = load i32, i32* %x1
+  %addtmp = add i32 %x6, 1
+  call void @test3(i32 %nottmp, i32 %addtmp)
+  ret void
+}
+
+define void @test1(i32 %a, i32 %x) {
+entry:
+  %x2 = alloca i32
+  %a1 = alloca i32
+  %x3 = load i32, i32* %x2
+  call void @print_int(i32 %x3)
+  %a4 = load i32, i32* %a1
+  call void @print_int(i32 %a4)
+  %x5 = load i32, i32* %x2
+  %addtmp = add i32 %x5, 1
+  %a6 = load i32, i32* %a1
+  %nottmp = xor i32 %a6, -1
+  call void @test2(i32 %addtmp, i32 %nottmp)
+  ret void
+}
 
 define i32 @main() {
 entry:
+  call void @test1(i32 1, i32 1)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.bc" ... ok
-converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.s" ... ok
-linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c" ... ok
-running:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/mixedcallchainexpr.llvm.exec ... ok
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.s" ... ok
+linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
+running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/mixedcallchainexpr.llvm.exec ... ok

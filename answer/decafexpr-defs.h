@@ -1,4 +1,4 @@
-
+#pragma once
 #ifndef _DECAF_DEFS
 #define _DECAF_DEFS
 

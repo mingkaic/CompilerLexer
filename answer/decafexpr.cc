@@ -5,12 +5,30 @@
 #include <iostream>
 #include <sstream>
 #include <exception>
+#include "decafsym.cc"
 
 #ifndef YYTOKENTYPE
 #include "decafexpr.tab.h"
 #endif
 
 using namespace std;
+
+static symbtbl NamedValues;
+
+void LogError(const char *Str) {
+  fprintf(stderr, "LogError: %s\n", Str);
+}
+
+llvm::Value *LogErrorV(const char *Str) {
+  LogError(Str);
+  return nullptr;
+}
+
+static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Type* t, llvm::Function *TheFunction,
+                                          const std::string &VarName) {
+	llvm::IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
+	return TmpB.CreateAlloca(t, NULL, VarName.c_str());
+}
 
 /// decafAST - Base class for all abstract syntax tree nodes.
 class decafAST {
@@ -19,6 +37,8 @@ public:
   virtual string str() { return string(""); }
   virtual llvm::Value *Codegen() = 0;
 };
+
+static std::map<std::string, decafAST*> FunctionProtos;
 
 string convertescape(string s) {
 	string res = "";
@@ -104,6 +124,97 @@ public:
 	}
 };
 
+enum OPs {
+	NEG, NOT, 
+	AND, OR, EQ, NEQ, LT, LE, GT, GE, 
+	ADD, MINUS, MULT, DIV, LSHI, RSHI, MOD,
+};
+
+class opSymAST : public decafAST {
+	OPs sym;
+public:
+	opSymAST(OPs s) : sym(s) {}
+	string str() {
+		switch(sym) {
+			case NEG:
+				return "UnaryMinus";
+			case NOT:
+				return "Not";
+			case AND:
+				return "And";
+			case OR:
+				return "Or";
+			case EQ:
+				return "Eq";
+			case NEQ: 
+				return "Neq";
+			case LT:
+				return "Lt";
+			case LE:
+				return "Leq";
+			case GT:
+				return "Gt";
+			case GE: 
+				return "Geq";
+			case ADD:
+				return "Plus";
+			case MINUS:
+				return "Minus";
+			case MULT:
+				return "Mult";
+			case DIV:
+				return "Div";
+			case LSHI:
+				return "Leftshift";
+			case RSHI:
+				return "Rightshift";
+			case MOD:
+				return "Mod";
+		}
+		return "";
+	}
+	llvm::Value* Codegen() { return NULL; }
+	OPs getOP() { return sym; }
+};
+
+enum TYPEs {
+	V_VOID, V_INT, V_BOOL, V_STRING,
+};
+
+class typeSymAST : public decafAST {
+	TYPEs t;
+public:
+	typeSymAST(TYPEs t) : t(t) {}
+	string str() {
+		switch(t) {
+			case V_VOID:
+				return "VoidType";
+			case V_INT:
+				return "IntType";
+			case V_BOOL:
+				return "BoolType";
+			case V_STRING:
+				return "StringType";
+		}
+		return "";
+	}
+	llvm::Value* Codegen() { return NULL; }
+	llvm::Type* Tgen() {
+		switch (t) {
+			case V_VOID:
+				return llvm::Type::getVoidTy(Context);
+			case V_INT:
+				return llvm::Type::getInt32Ty(Context);
+			case V_BOOL:
+				return llvm::Type::getInt32Ty(Context);
+			case V_STRING:
+				return llvm::Type::getInt32PtrTy(Context);
+			default:
+				return NULL; 
+		}
+	}
+};
+
 class temporaryAST : public decafAST {
 public:
 	list<string*> types;
@@ -112,32 +223,60 @@ public:
 			delete *i;
 		}
 	}
+	llvm::Value* Codegen() { // never called
+		return NULL;
+	}
+};
+
+class booleanAST : public decafAST {
+	bool data;
+public:
+	booleanAST(bool data) : data(data) {}
+	string str() { 
+		if (data) {
+			return "BoolExpr(True)"; 
+		}
+		return "BoolExpr(False)"; 
+	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
+		llvm::Value *val = llvm::ConstantInt::get(Context, llvm::APInt(32, data));
 		return val;
 	}
 };
 
-class constantAST : public decafAST {
-	string wrap;
+class numericAST : public decafAST {
+	int data;
+public:
+	numericAST(int data) : data(data) {}
+	string str() { return "NumberExpr(" + to_string((int)data) + ")"; }
+	llvm::Value* Codegen() {
+		llvm::Value *val = llvm::ConstantInt::get(Context, llvm::APInt(32, data));
+		return val;
+	}
+};
+
+class stringAST : public decafAST {
 	string data;
 public:
-	constantAST(string wrap, string data) : wrap(wrap), data(data) {}
-	string str() { return wrap + "(" + data + ")"; }
+	stringAST(string data) : data(data) {}
+	string str() { return "StringConstant(" + data + ")"; }
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
+		llvm::Value *val = llvm::ConstantDataArray::get(Context, 
+			llvm::ArrayRef<uint16_t>((uint16_t*) data.c_str(), data.length()));
 		return val;
 	}
 };
 
-class typedSymAST : public decafAST {
+class vardefAST : public decafAST {
 	string content;
-	decafAST* Type;
+	typeSymAST* Type;
 public:
-	typedSymAST(decafAST* Type) : content(""), Type(Type) {}
-	typedSymAST(string in) : content("") { Type = new terminalAST(in); }
-	typedSymAST(string content, decafAST* Type) : content(content), Type(Type) {}
-	~typedSymAST() { if (NULL != Type) { delete Type; } }
+	vardefAST(typeSymAST* Type) : content(""), Type(Type) {}
+	vardefAST(TYPEs in) : content("") { Type = new typeSymAST(in); }
+	vardefAST(string content, typeSymAST* Type) : content(content), Type(Type) {}
+	~vardefAST() { if (NULL != Type) { delete Type; } }
+	string getContent() {return content;}
+	string getType() {return getString(Type);}
 	string str() { 
 		string res = "VarDef(";
 		if (0 != content.size()) {
@@ -145,9 +284,25 @@ public:
 		}
 		return res + getString(Type) + ")"; 
 	}
+	string getName() {
+		return content;
+	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
+
+		// Create an alloca for the variable in the entry block.
+		if (NamedValues[content]) {
+			LogErrorV("Redefining variable in same scope");
+		} else {
+			// allocate memory
+			llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(Type->Tgen(), TheFunction, content);
+			NamedValues[content] = Alloca;
+			return Alloca;
+		}
+		return NULL;
+	}
+	llvm::Type* Tgen() {
+		return Type->Tgen();
 	}
 };
 
@@ -161,6 +316,8 @@ public:
 			delete *i;
 		}
 	}
+	list<decafAST *>::iterator begin() { return stmts.begin(); }
+	list<decafAST *>::iterator end() { return stmts.end(); }
 	int size() { return stmts.size(); }
 	void push_front(decafAST *e) { stmts.push_front(e); }
 	void push_back(decafAST *e) { stmts.push_back(e); }
@@ -173,18 +330,18 @@ public:
 class FieldDeclAST : public decafAST {
 	string Name;
 	string arrNum;
-	decafAST* Type;
-	constantAST* constant;
+	typeSymAST* typ;
+	decafAST* constant;
 public:
-	FieldDeclAST(string Name, decafAST* Type)
-		: Name(Name), Type(Type), arrNum(""), constant(NULL) {}
-	FieldDeclAST(string Name, decafAST* Type, string arrNum) 
-		: Name(Name), Type(Type), arrNum(arrNum), constant(NULL) {}
-	FieldDeclAST(string Name, decafAST* Type, constantAST* constant)
-		: Name(Name), Type(Type), arrNum(""), constant(constant) {}
+	FieldDeclAST(string Name, typeSymAST* typ)
+		: Name(Name), typ(typ), arrNum(""), constant(NULL) {}
+	FieldDeclAST(string Name, typeSymAST* typ, string arrNum) 
+		: Name(Name), typ(typ), arrNum(arrNum), constant(NULL) {}
+	FieldDeclAST(string Name, typeSymAST* typ, decafAST* constant)
+		: Name(Name), typ(typ), arrNum(""), constant(constant) {}
 	~FieldDeclAST() {
-		if (NULL != Type) {
-			delete Type;
+		if (NULL != typ) {
+			delete typ;
 		}
 		if (NULL != constant) {
 			delete constant;
@@ -193,9 +350,9 @@ public:
 	string str() {
 		if (NULL != constant) {
 			return string("AssignGlobalVar(") + Name + "," 
-				+ getString(Type) + "," + getString(constant) + ")";
+				+ getString(typ) + "," + getString(constant) + ")";
 		}
-		string res = string("FieldDecl(") + Name + "," + getString(Type) + ",";
+		string res = string("FieldDecl(") + Name + "," + getString(typ) + ",";
 		if (arrNum.size() > 0) {
 			res += "Array(" + arrNum + ")";
 		} else {
@@ -204,34 +361,75 @@ public:
 		return res + ")";
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
+
+		// Create an alloca for the variable in the entry block.
+		if (NamedValues[Name]) {
+			LogErrorV("Redefining variable in same scope");
+		} else {
+			// allocate memory
+			llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(typ->Tgen(), TheFunction, Name);
+			NamedValues[Name] = Alloca;
+			return Alloca;
+		}
+		return NULL;
 	}
 };
 
 class ExternAST : public decafAST {
+protected:
 	string Name;
-	terminalAST* RetType;
-	decafStmtList* typelist;
+	typeSymAST* RetType;
+	decafStmtList* args;
+	llvm::Value* proto() {
+		std::vector<llvm::Type*> params;
+		if (args) {
+			for (list<decafAST *>::iterator pit = args->begin();
+				pit != args->end(); pit++) {
+				vardefAST* v = (vardefAST*) *pit;
+				params.push_back(v->Tgen());
+			}
+		}
+		llvm::FunctionType *FT = llvm::FunctionType::get(RetType->Tgen(), params, false);
+		llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, Name, TheModule);
+		if (args) {
+			list<decafAST *>::iterator it = args->begin();
+			for (auto &Arg : F->args()) {
+				vardefAST* v = (vardefAST*) *it;
+				Arg.setName(v->getName());
+				it++;
+			}
+		}
+
+		return F;
+	}
 public:
-	ExternAST(string identifier, terminalAST* ret, decafStmtList* param) 
-		: Name(identifier), RetType(ret), typelist(param) {}
-	~ExternAST() { if (NULL != typelist) { delete typelist; } }
-	string str() {
-		return string("ExternFunction(") + Name + "," + getString(RetType) + "," + getString(typelist) + ")"; 
+	ExternAST(string identifier, typeSymAST* ret, decafStmtList* param) 
+		: Name(identifier), RetType(ret), args(param) {}
+	virtual ~ExternAST() { 
+		if (NULL != RetType) { delete RetType; }
+		if (NULL != args) { delete args; } 
+	}
+	virtual string str() {
+		return string("ExternFunction(") + Name + "," + getString(RetType) + "," + getString(args) + ")"; 
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		auto *FnIR = proto();
+		if (FnIR) {
+			FunctionProtos[Name] = this;
+		} else {
+			FnIR->dump();
+		}
+		return FnIR;
 	}
 };
 
 class opAST : public decafAST {
 	decafAST* lvalue;
 	decafAST* rvalue;
-	terminalAST* op;
+	opSymAST* op;
 public:
-	opAST(decafAST* lvalue, terminalAST* op, decafAST* rvalue = NULL)
+	opAST(decafAST* lvalue, opSymAST* op, decafAST* rvalue = NULL)
 		: lvalue(lvalue), rvalue(rvalue), op(op) {}
 	~opAST() {
 		if (NULL != lvalue) { 
@@ -251,8 +449,62 @@ public:
 		return string("BinaryExpr(") + getString(op) + "," + getString(lvalue) + "," + getString(rvalue) + ")"; 
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Value *L = lvalue->Codegen();
+		if (!rvalue) { // unary
+			if (!L) {
+				return NULL;
+			}
+
+			switch (op->getOP()) {
+				case NEG:
+					return Builder.CreateNeg(L, "negtmp");
+				case NOT:
+					return Builder.CreateNot(L, "nottmp");
+				default:
+					break;
+			}
+		} else {
+			llvm::Value *R = rvalue->Codegen();
+			if (!L || !R) {
+				return NULL;
+			}
+
+			switch (op->getOP()) {
+				case AND:
+					return Builder.CreateAnd(L, R, "andtmp");
+				case OR:
+					return Builder.CreateOr(L, R, "ortmp");
+				case EQ:
+					return Builder.CreateICmpEQ(L, R, "eqtmp");
+				case NEQ: 
+					return Builder.CreateICmpNE(L, R, "netmp");
+				case LT:
+					return Builder.CreateICmpULT(L, R, "lttmp");
+				case LE:
+					return Builder.CreateICmpULE(L, R, "letmp");
+				case GT:
+					return Builder.CreateICmpUGT(L, R, "gttmp");
+				case GE: 
+					return Builder.CreateICmpUGE(L, R, "getmp");
+				case ADD:
+					return Builder.CreateAdd(L, R, "addtmp");
+				case MINUS:
+					return Builder.CreateSub(L, R, "subtmp");
+				case MULT:
+					return Builder.CreateMul(L, R, "multmp");
+				case DIV:
+					return Builder.CreateSDiv(L, R, "divtmp");
+				case LSHI:
+					return Builder.CreateShl(L, R, "shltmp");
+				case RSHI:
+					return Builder.CreateLShr(L, R, "shrtmp");
+				case MOD:
+					return Builder.CreateSRem(L, R, "modtmp");
+				default:
+					break;
+			}
+		}
+		return LogErrorV("invalid binary operator");
 	}
 };
 
@@ -270,8 +522,10 @@ public:
 		return string("ArrayLocExpr(") + id + "," + getString(index) + ")"; 
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Value *val = NamedValues[id];
+		if (!val)
+		    LogErrorV("Unknown variable name");
+		return Builder.CreateLoad(val, id.c_str());
 	}
 };
 
@@ -292,7 +546,15 @@ public:
         return string("Block(") + getString(varList) + "," + getString(stateList) + ")";
 	}
 	llvm::Value* Codegen() {
+		NamedValues.enterscope();
 		llvm::Value *val = NULL;
+		if (NULL != varList) {
+			val = varList->Codegen();
+		}
+		if (NULL != stateList) {
+			val = stateList->Codegen();
+		}
+		NamedValues.exitscope();
 		return val;
 	}
 };
@@ -380,32 +642,61 @@ public:
 	}
 };
 
-class MethodDeclAST : public decafAST {
-	string Name;
-	decafAST* Type;
-	decafStmtList* arrParam;
+class MethodDeclAST : public ExternAST {
 	blockAST* block;
 public:
-	MethodDeclAST(string Name, decafAST* retType, decafStmtList* params, blockAST* block)
-		: Name(Name), Type(retType), arrParam(params), block(block) {}
+	MethodDeclAST(string Name, typeSymAST* retType, decafStmtList* params, blockAST* block)
+		: ExternAST(Name, retType, params), block(block) {}
 	~MethodDeclAST() {
-		if (NULL != Type) {
-			delete Type;
-		}
-		if (NULL != arrParam) {
-			delete arrParam;
-		}
 		if (NULL != block) {
 			delete block;
 		}
 	}
 	string str() {
-        return string("Method(") + Name + "," + getString(Type) + "," + 
-        	getString(arrParam) + ",Method" + getString(block) + ")";
+        return string("Method(") + this->Name + "," + getString(this->RetType) + "," + 
+        	getString(this->args) + ",Method" + getString(block) + ")";
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Function *TheFunction = TheModule->getFunction(this->Name);
+		if (!TheFunction) {
+			TheFunction = (llvm::Function*) this->proto();
+		}
+		if (!TheFunction) {
+			return NULL;
+		}
+		if (!TheFunction->empty()) {
+			return (llvm::Function*)LogErrorV("Function cannot be redefined.");
+		}
+		llvm::BasicBlock *BB = llvm::BasicBlock::Create(Context, "entry", TheFunction);
+		Builder.SetInsertPoint(BB);
+
+		// Record the function arguments in the NamedValues map.
+		if (this->args) {
+			for (list<decafAST *>::iterator pit = args->begin();
+				pit != args->end(); pit++) {
+				vardefAST* v = (vardefAST*) *pit;
+				string VarName = v->getName();
+
+				llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(v->Tgen(), TheFunction, VarName);
+				NamedValues.method_args(VarName, Alloca);
+			}
+		}
+
+		if (llvm::Value *RetVal = block->Codegen()) {
+			// Finish off the function.
+			if (this->Name.compare("main") != 0) {
+				if (RetVal->getType()->isVoidTy()) {
+					Builder.CreateRet(NULL);
+				} else {
+					Builder.CreateRet(RetVal);
+				}
+			}
+		} else {
+			Builder.CreateRet(NULL);
+		}
+		// Validate the generated code, checking for consistency.
+		llvm::verifyFunction(*TheFunction);
+		return TheFunction;
 	}
 };
 
@@ -420,8 +711,29 @@ public:
 		return string("MethodCall(") + Name + "," + getString(args) + ")"; 
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Function* callee = TheModule->getFunction(Name);
+		if (!callee) {
+			return LogErrorV("Unknown function referenced");
+		}
+
+		// If argument mismatch error.
+		if (callee->arg_size() != args->size()) {
+			return LogErrorV("Incorrect # arguments passed");
+		}
+
+		std::vector<llvm::Value *> ArgsV;
+
+		for (list<decafAST *>::iterator it = args->begin(); 
+			it != args->end(); it++) {
+			ArgsV.push_back((*it)->Codegen());
+			if (!ArgsV.back()) {
+				return nullptr;
+			}
+		}
+		if (callee->getReturnType()->isVoidTy()) {
+			return Builder.CreateCall(callee->getFunctionType(), callee, ArgsV);
+		}
+		return Builder.CreateCall(callee->getFunctionType(), callee, ArgsV, "calltmp");
 	}
 };
 
@@ -466,8 +778,12 @@ public:
 		return res + getString(rvalue) + ")";
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		llvm::Value *lval = NamedValues[lvalue1];
+		llvm::Value *rval = rvalue->Codegen();
+
+    	Builder.CreateStore(rval, lval);
+
+		return rval;
 	}
 };
 
@@ -493,7 +809,7 @@ public:
 		}
 		if (NULL != MethodDeclList) {
 			val = MethodDeclList->Codegen();
-		} 
+		}
 		// Q: should we enter the class name into the symbol table?
 		return val; 
 	}
@@ -523,5 +839,3 @@ public:
 		return val; 
 	}
 };
-
-

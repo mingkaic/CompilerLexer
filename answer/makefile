@@ -7,7 +7,7 @@ mylibs=-l$(yacclib) -l$(lexlib) $(llvmlibs)
 bindir=.
 rm=/bin/rm -f
 mv=/bin/mv -f
-llvmcpp=
+llvmcpp=decafsym
 llvmfiles=
 llvmtargets=decafexpr default
 

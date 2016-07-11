@@ -14,6 +14,7 @@ bool printAST = false;
 using namespace std;
 
 // this global variable contains all the generated code
+static llvm::LLVMContext &Context = llvm::getGlobalContext();
 static llvm::Module *TheModule;
 
 // this is the method used to construct the LLVM intermediate code (IR)
@@ -136,8 +137,7 @@ program: extern_list decafpackage {
 extern_list: /* empty */ { $$ = new decafStmtList(); }
     | T_EXTERN T_FUNC T_ID T_LPAREN T_RPAREN method_type T_SEMICOLON extern_list {
         string* id = $3;
-        terminalAST* methodT = (terminalAST*) $6;
-        ExternAST* ext = new ExternAST(*id, methodT, NULL);
+        ExternAST* ext = new ExternAST(*id, (typeSymAST*) $6, NULL);
         delete id;
         decafStmtList* l = (decafStmtList*) $8;
         l->push_front(ext);
@@ -145,9 +145,8 @@ extern_list: /* empty */ { $$ = new decafStmtList(); }
     }
     | T_EXTERN T_FUNC T_ID T_LPAREN extern_param T_RPAREN method_type T_SEMICOLON extern_list {
         string* id = $3;
-        terminalAST* methodT = (terminalAST*) $7;
         decafStmtList* ex_list = (decafStmtList*) $5;
-        ExternAST* ext = new ExternAST(*id, methodT, ex_list);
+        ExternAST* ext = new ExternAST(*id, (typeSymAST*) $7, ex_list);
         delete id;
         decafStmtList* l = (decafStmtList*) $9;
         l->push_front(ext);
@@ -160,7 +159,7 @@ extern_param: extern_type T_COMMA extern_param { // one to many
         // assert that ex_list != NULL
         ex_list->push_front($1);
         $$ = ex_list;
-    } 
+    }
     | extern_type {
         decafStmtList* ex_list = new decafStmtList();
         ex_list->push_back($1);
@@ -168,16 +167,16 @@ extern_param: extern_type T_COMMA extern_param { // one to many
     }
     ;
 
-extern_type: T_STRINGTYPE { $$ = new typedSymAST("StringType"); }
-    | decaf_type { $$ = new typedSymAST($1); }
+extern_type: T_STRINGTYPE { $$ = new vardefAST(V_STRING); }
+    | decaf_type { $$ = new vardefAST((typeSymAST*) $1); }
     ;
 
-method_type: T_VOID { $$ = new terminalAST("VoidType"); }
+method_type: T_VOID { $$ = new typeSymAST(V_VOID); }
     | decaf_type { $$ = $1; }
     ;
 
-decaf_type: T_INTTYPE { $$ = new terminalAST("IntType"); }
-    | T_BOOLTYPE { $$ = new terminalAST("BoolType"); }
+decaf_type: T_INTTYPE { $$ = new typeSymAST(V_INT); }
+    | T_BOOLTYPE { $$ = new typeSymAST(V_BOOL); }
     ;
 
 decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB {
@@ -199,31 +198,31 @@ field_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
 field_decl: T_VAR id_list decaf_type T_SEMICOLON {
         decafStmtList* res = new decafStmtList();
         temporaryAST* ids = (temporaryAST*) $2;
-        terminalAST* t = (terminalAST*) $3;
+        typeSymAST* t = (typeSymAST*) $3;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDeclAST(**it, new terminalAST(*t)));
+            res->push_back(new FieldDeclAST(**it, new typeSymAST(*t)));
         }
         delete t;
         delete ids;
         $$ = res;
     }
-    | T_VAR T_ID decaf_type T_SEMICOLON { 
+    | T_VAR T_ID decaf_type T_SEMICOLON {
         // for some reason, bison has problems with single ID id_list followed by decaf_type
-        $$ = new FieldDeclAST(*$2, $3);
+        $$ = new FieldDeclAST(*$2, (typeSymAST*) $3);
     }
     | T_VAR id_list T_LSB T_INTCONSTANT T_RSB decaf_type T_SEMICOLON { 
         decafStmtList* res = new decafStmtList();
         temporaryAST* ids = (temporaryAST*) $2;
-        terminalAST* t = (terminalAST*) $6;
+        typeSymAST* t = (typeSymAST*) $6;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDeclAST(**it, new terminalAST(*t), *$4));
+            res->push_back(new FieldDeclAST(**it, new typeSymAST(*t), *$4));
         }
         delete t;
         delete ids;
         $$ = res;
     }
     | T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON {
-        $$ = new FieldDeclAST(*$2, $3, (constantAST*) $5);
+        $$ = new FieldDeclAST(*$2, (typeSymAST*) $3, $5);
         delete $2;
     }
     ;
@@ -240,46 +239,46 @@ id_list: T_ID { // one or more
     }
     ;
 
-constant: T_INTCONSTANT { $$ = new constantAST("NumberExpr", *$1); delete $1; }
+constant: T_INTCONSTANT { $$ = new numericAST(stoi(*$1)); delete $1; }
     | T_CHARCONSTANT {
         try {
             string strrep = convertescape(*$1);
             int val = strrep[1];
-            $$ = new constantAST("NumberExpr", to_string(val)); 
+            $$ = new numericAST(val); 
             delete $1;
         } catch (string e) {
             yyerror(e.c_str());
             return -1;
         }
     }
-    | T_TRUE { $$ = new constantAST("BoolExpr", "True"); }
-    | T_FALSE { $$ = new constantAST("BoolExpr", "False"); }
+    | T_TRUE { $$ = new booleanAST(true); }
+    | T_FALSE { $$ = new booleanAST(false); }
     ;
 
 method_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
     | T_FUNC T_ID T_LPAREN T_RPAREN method_type block method_list {
         decafStmtList* l = (decafStmtList*) $7;
         blockAST* bloc = (blockAST*) $6;
-        l->push_front(new MethodDeclAST(*$2, $5, NULL, bloc));
+        l->push_front(new MethodDeclAST(*$2, (typeSymAST*) $5, NULL, bloc));
         $$ = l;
     }
     | T_FUNC T_ID T_LPAREN param_list T_RPAREN method_type block method_list {
         decafStmtList* l = (decafStmtList*) $8;
         blockAST* bloc = (blockAST*) $7;
         decafStmtList* params = (decafStmtList*) $4;
-        l->push_front(new MethodDeclAST(*$2, $6, params, bloc));
+        l->push_front(new MethodDeclAST(*$2, (typeSymAST*) $6, params, bloc));
         $$ = l;
     }
     ;
 
 param_list: T_ID decaf_type { // one or more
         decafStmtList* res = new decafStmtList();
-        res->push_back(new typedSymAST(*$1, $2));
+        res->push_back(new vardefAST(*$1, (typeSymAST*) $2));
         $$ = res;
     } 
     | T_ID decaf_type T_COMMA param_list {
         decafStmtList* res = (decafStmtList*) $4;
-        res->push_front(new typedSymAST(*$1, $2));
+        res->push_front(new vardefAST(*$1, (typeSymAST*) $2));
         $$ = res;
     } 
     ;
@@ -295,9 +294,9 @@ var_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
     | var_list T_VAR id_list decaf_type T_SEMICOLON {
         decafStmtList* res = (decafStmtList*) $1;
         temporaryAST* ids = (temporaryAST*) $3;
-        terminalAST* t = (terminalAST*) $4;
+        typeSymAST* t = (typeSymAST*) $4;
         for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new typedSymAST(**it, new terminalAST(*t)));
+            res->push_back(new vardefAST(**it, new typeSymAST(*t)));
         }
         delete t;
         $$ = res;
@@ -378,7 +377,7 @@ method_arg_list: method_arg { // one or more
 method_arg: expr { $$ = $1; } 
     | T_STRINGCONSTANT { 
         try {
-            $$ = new constantAST("StringConstant", *$1);
+            $$ = new stringAST(*$1);
         } catch (string e) {
             yyerror(e.c_str());
             return -1;
@@ -388,30 +387,30 @@ method_arg: expr { $$ = $1; }
 
 expr: and_level { $$ = $1; }
     | expr T_OR and_level {
-        $$ = new opAST($1, new terminalAST("Or"), $3); 
+        $$ = new opAST($1, new opSymAST(OR), $3); 
     }
     ;
 
 and_level: comp_level { $$ = $1; }
     | and_level T_AND comp_level {
-        $$ = new opAST($1, new terminalAST("And"), $3); 
+        $$ = new opAST($1, new opSymAST(AND), $3); 
     }
     ;
 
 comp_level: plus_level { $$ = $1; }
-    | comp_level comp_op plus_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    | comp_level comp_op plus_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
     ;
 
 plus_level: mult_level { $$ = $1; }
-    | plus_level plus_op mult_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    | plus_level plus_op mult_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
     ;
 
 mult_level: not_level { $$ = $1; }
-    | mult_level mult_op not_level { $$ = new opAST($1, (terminalAST*) $2, $3); }
+    | mult_level mult_op not_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
     ;
 
 not_level: to_endpoint { $$ = $1; }
-    | T_NOT not_level { $$ = new opAST($2, new terminalAST("Not")); }
+    | T_NOT not_level { $$ = new opAST($2, new opSymAST(NOT)); }
     ;
 
 to_endpoint: T_ID { $$ = new rvalueAST(*$1); delete $1; }
@@ -419,47 +418,48 @@ to_endpoint: T_ID { $$ = new rvalueAST(*$1); delete $1; }
     | method_call { $$ = $1; }
     | constant { $$ = $1; }
     | T_LPAREN expr T_RPAREN { $$ = $2; }
-    | T_MINUS to_endpoint { $$ = new opAST($2, new terminalAST("UnaryMinus")); }
+    | T_MINUS to_endpoint { $$ = new opAST($2, new opSymAST(NEG)); }
     ;
 
-comp_op: T_EQ { $$ = new terminalAST("Eq"); }
-    | T_NEQ { $$ = new terminalAST("Neq"); }
-    | T_LT { $$ = new terminalAST("Lt"); }
-    | T_LEQ { $$ = new terminalAST("Leq"); }
-    | T_GT { $$ = new terminalAST("Gt"); }
-    | T_GEQ { $$ = new terminalAST("Geq"); }
+comp_op: T_EQ { $$ = new opSymAST(EQ); }
+    | T_NEQ { $$ = new opSymAST(NEQ); }
+    | T_LT { $$ = new opSymAST(LT); }
+    | T_LEQ { $$ = new opSymAST(LE); }
+    | T_GT { $$ = new opSymAST(GT); }
+    | T_GEQ { $$ = new opSymAST(GE); }
 
-plus_op: T_PLUS { $$ = new terminalAST("Plus"); }
-    | T_MINUS { $$ = new terminalAST("Minus"); }
+plus_op: T_PLUS { $$ = new opSymAST(ADD); }
+    | T_MINUS { $$ = new opSymAST(MINUS); }
     ;
 
-mult_op: T_MULT { $$ = new terminalAST("Mult"); }
-    | T_DIV { $$ = new terminalAST("Div"); }
-    | T_LEFTSHIFT { $$ = new terminalAST("Leftshift"); }
-    | T_RIGHTSHIFT { $$ = new terminalAST("Rightshift"); }
-    | T_MOD { $$ = new terminalAST("Mod"); }
+mult_op: T_MULT { $$ = new opSymAST(MULT); }
+    | T_DIV { $$ = new opSymAST(DIV); }
+    | T_LEFTSHIFT { $$ = new opSymAST(LSHI); }
+    | T_RIGHTSHIFT { $$ = new opSymAST(RSHI); }
+    | T_MOD { $$ = new opSymAST(MOD); }
     ;
 
 %%
 
 int main() {
     // initialize LLVM
-    llvm::LLVMContext &Context = llvm::getGlobalContext();
     // Make the module, which holds all the code.
     TheModule = new llvm::Module("Test", Context);
     // set up symbol table
     // set up dummy main function
-    TheFunction = gen_main_def();
+    // TheFunction = gen_main_def();
+    //fprintf(stderr, "ready> ");
 
     // parse the input and create the abstract syntax tree
     int retval = yyparse();
+    TheFunction = TheModule->getFunction("main");
 
     // remove symbol table
     // Finish off the main function.
     // return 0 from main, which is EXIT_SUCCESS
     Builder.CreateRet(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0)));
     // Validate the generated code, checking for consistency.
-    verifyFunction(*TheFunction);
+    //verifyFunction(*TheFunction);
     // Print out all of the generated code to stderr
     TheModule->dump();
 

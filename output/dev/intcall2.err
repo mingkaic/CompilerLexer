@@ -1,17 +1,31 @@
-output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2
+output prefix: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2
 llvmas: /Users/cmk/llvm/bin/llvm-as
 llc: /Users/cmk/llvm/bin/llc
 cc: gcc
-codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr
-stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decafexpr ... ok
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
+
+declare void @print_int(i32)
+
+define void @test(i32 %a, i32 %b) {
+entry:
+  %b2 = alloca i32
+  %a1 = alloca i32
+  %a3 = load i32, i32* %a1
+  call void @print_int(i32 %a3)
+  %b4 = load i32, i32* %b2
+  call void @print_int(i32 %b4)
+  ret void
+}
 
 define i32 @main() {
 entry:
+  call void @test(i32 1, i32 2)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.bc" ... ok
-converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.s" ... ok
-linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/answer/decaf-stdlib.c" ... ok
-running:/Users/cmk/Developer/cworkspace/compiler/hw3/decafexpr/output/dev/llvm/intcall2.llvm.exec ... ok
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.s" ... ok
+linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
+running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/intcall2.llvm.exec ... ok

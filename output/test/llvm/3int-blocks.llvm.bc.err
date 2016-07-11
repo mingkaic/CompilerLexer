@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/3int-blocks.llvm:1:1: error: expected top-level entity
+LogError: Redefining variable in same scope
+^

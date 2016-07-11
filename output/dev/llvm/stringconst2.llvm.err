@@ -1,6 +1,10 @@
 ; ModuleID = 'Test'
 
+declare void @print_string(i32*)
+
 define i32 @main() {
 entry:
+  call void @print_string([8 x i16] [i16 26658, i16 27749, i16 28524, i16 8748, i16 0, i16 0, i16 0, i16 720])
+  call void @print_string([10 x i16] [i16 8226, i16 28535, i16 27762, i16 23652, i16 8814, i16 0, i16 0, i16 0, i16 0, i16 0])
   ret i32 0
 }

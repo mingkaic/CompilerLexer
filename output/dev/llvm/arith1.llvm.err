@@ -1,6 +1,26 @@
 ; ModuleID = 'foo'
 
+declare void @print_int(i32)
+
 define i32 @main() {
 entry:
+  %size = alloca i32
+  %c = alloca i32
+  %b = alloca i32
+  %a = alloca i32
+  %flag = alloca i32
+  store i32 1, i32* %a
+  store i32 0, i32* %b
+  store i32 1, i32* %c
+  %a1 = load i32, i32* %a
+  %b2 = load i32, i32* %b
+  %c3 = load i32, i32* %c
+  %nottmp = xor i32 %c3, -1
+  %andtmp = and i32 %b2, %nottmp
+  %ortmp = or i32 %a1, %andtmp
+  store i32 %ortmp, i32* %flag
+  store i32 0, i32* %size
+  %size4 = load i32, i32* %size
+  call void @print_int(i32 %size4)
   ret i32 0
 }
