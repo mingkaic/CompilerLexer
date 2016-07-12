@@ -7,8 +7,6 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'foo'
 
-declare void @print_int(i32)
-
 define i32 @main() {
 entry:
   %size = alloca i32
@@ -23,13 +21,20 @@ entry:
   %b2 = load i32, i32* %b
   %c3 = load i32, i32* %c
   %nottmp = xor i32 %c3, -1
-  %andtmp = and i32 %b2, %nottmp
-  store i32 0, i32* %flag
+  %0 = and i32 1, %nottmp
+  %andtmp = and i32 %b2, %0
+  %1 = and i32 1, %andtmp
+  %ortmp = or i32 %a1, %1
+  %2 = and i32 1, %ortmp
+  %3 = and i32 1, %2
+  store i32 %3, i32* %flag
   store i32 0, i32* %size
   %size4 = load i32, i32* %size
   call void @print_int(i32 %size4)
   ret i32 0
 }
+
+declare void @print_int(i32)
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm.bc" ... ok
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/arith1.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok

@@ -7,17 +7,20 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
-
 define i32 @main() {
 entry:
   %x = alloca i32
-  call void @print_int(i32 0)
+  call void @print_int(i1 false)
   call void @print_int(i32 1)
-  call void @print_int(i32 0)
+  call void @print_int(i1 false)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.bc" ... ok
+
+declare void @print_int(i32)
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm:7:13: error: '@print_int' defined with type 'void (i1)*'
+  call void @print_int(i32 1)
+            ^
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
 running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/inteq.llvm.exec ... ok

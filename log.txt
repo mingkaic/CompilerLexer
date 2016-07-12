@@ -32,12 +32,7 @@ INFO:root:dev/var3.out Correct!
 INFO:root:Checking dev/rshift.out
 INFO:root:dev/rshift.out Correct!
 INFO:root:Checking dev/leq.out
-INFO:root:Diff between reference and your output for dev/leq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--110
+INFO:root:dev/leq.out Correct!
 INFO:root:Checking dev/var2.out
 INFO:root:dev/var2.out Correct!
 INFO:root:Checking dev/neg.out
@@ -59,12 +54,7 @@ INFO:root:dev/charescapes.out Correct!
 INFO:root:Checking dev/externreadint.out
 INFO:root:dev/externreadint.out Correct!
 INFO:root:Checking dev/lt.out
-INFO:root:Diff between reference and your output for dev/lt.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--100
+INFO:root:dev/lt.out Correct!
 INFO:root:Checking dev/returnmismatch-intofchar-ok.out
 INFO:root:dev/returnmismatch-intofchar-ok.out Correct!
 INFO:root:Checking dev/boolcallchain3.out
@@ -86,12 +76,7 @@ INFO:root:dev/boolconst.out Correct!
 INFO:root:Checking dev/bboolneq.out
 INFO:root:dev/bboolneq.out Correct!
 INFO:root:Checking dev/backward.out
-INFO:root:Diff between reference and your output for dev/backward.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--1013
+INFO:root:dev/backward.out Correct!
 INFO:root:Checking dev/noexterns.out
 INFO:root:dev/noexterns.out Correct!
 INFO:root:Checking dev/expr-testfile-7.out
@@ -107,13 +92,7 @@ INFO:root:dev/callexpr.out Correct!
 INFO:root:Checking dev/intconst-var.out
 INFO:root:dev/intconst-var.out Correct!
 INFO:root:Checking dev/expr-testfile-5.out
-INFO:root:Diff between reference and your output for dev/expr-testfile-5.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--1
-+0
+INFO:root:dev/expr-testfile-5.out Correct!
 INFO:root:Checking dev/expr-testfile-4.out
 INFO:root:dev/expr-testfile-4.out Correct!
 INFO:root:Checking dev/charexpr.out
@@ -123,51 +102,25 @@ INFO:root:Diff between reference and your output for dev/stringconst.out
 INFO:root:
 --- reference
 +++ your-output
-@@ -1 +0,0 @@
+@@ -1 +1 @@
 -hello, world
++"
 INFO:root:Checking dev/default-passes.out
 INFO:root:dev/default-passes.out Correct!
 INFO:root:Checking dev/boolneq.out
-INFO:root:Diff between reference and your output for dev/boolneq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--01103
+INFO:root:dev/boolneq.out Correct!
 INFO:root:Checking dev/boolconst-var.out
 INFO:root:dev/boolconst-var.out Correct!
 INFO:root:Checking dev/intneq.out
-INFO:root:Diff between reference and your output for dev/intneq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--101
+INFO:root:dev/intneq.out Correct!
 INFO:root:Checking dev/bleq.out
 INFO:root:dev/bleq.out Correct!
 INFO:root:Checking dev/boolcallchain3expr.out
-INFO:root:Diff between reference and your output for dev/boolcallchain3expr.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--101
-+1-21
+INFO:root:dev/boolcallchain3expr.out Correct!
 INFO:root:Checking dev/inteq.out
-INFO:root:Diff between reference and your output for dev/inteq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--010
+INFO:root:dev/inteq.out Correct!
 INFO:root:Checking dev/not.out
-INFO:root:Diff between reference and your output for dev/not.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--011001
-+01-1-201
+INFO:root:dev/not.out Correct!
 INFO:root:Checking dev/charprint.out
 INFO:root:dev/charprint.out Correct!
 INFO:root:Checking dev/bgeq.out
@@ -175,13 +128,7 @@ INFO:root:dev/bgeq.out Correct!
 INFO:root:Checking dev/onlystate.out
 INFO:root:dev/onlystate.out Correct!
 INFO:root:Checking dev/mixedcallchainexprmultibranch.out
-INFO:root:Diff between reference and your output for dev/mixedcallchainexprmultibranch.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--1120312020
-+112-2312-22-2
+INFO:root:dev/mixedcallchainexprmultibranch.out Correct!
 INFO:root:Checking dev/forward.out
 INFO:root:dev/forward.out Correct!
 INFO:root:Checking dev/stringescapes.out
@@ -189,30 +136,21 @@ INFO:root:Diff between reference and your output for dev/stringescapes.out
 INFO:root:
 --- reference
 +++ your-output
-@@ -1,3 +0,0 @@
+@@ -1,3 +1 @@
 -1	23
 -4
 -5678\9"10
++"
 INFO:root:Checking dev/callexprprint.out
 INFO:root:dev/callexprprint.out Correct!
 INFO:root:Checking dev/binteq.out
 INFO:root:dev/binteq.out Correct!
 INFO:root:Checking dev/geq.out
-INFO:root:Diff between reference and your output for dev/geq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--011
+INFO:root:dev/geq.out Correct!
 INFO:root:Checking dev/minus.out
 INFO:root:dev/minus.out Correct!
 INFO:root:Checking dev/gr.out
-INFO:root:Diff between reference and your output for dev/gr.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--001
+INFO:root:dev/gr.out Correct!
 INFO:root:Checking dev/lshift.out
 INFO:root:dev/lshift.out Correct!
 INFO:root:Checking dev/externprintint.out
@@ -220,19 +158,9 @@ INFO:root:dev/externprintint.out Correct!
 INFO:root:Checking dev/emptymethod.out
 INFO:root:dev/emptymethod.out Correct!
 INFO:root:Checking dev/booleq.out
-INFO:root:Diff between reference and your output for dev/booleq.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--10013
+INFO:root:dev/booleq.out Correct!
 INFO:root:Checking dev/stringescapequote.out
-INFO:root:Diff between reference and your output for dev/stringescapequote.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--"
+INFO:root:dev/stringescapequote.out Correct!
 INFO:root:Checking dev/expr-testfile-2.out
 INFO:root:dev/expr-testfile-2.out Correct!
 INFO:root:Checking dev/arith1.out
@@ -244,13 +172,7 @@ INFO:root:dev/expr-testfile-0.out Correct!
 INFO:root:Checking dev/onlyvar.out
 INFO:root:dev/onlyvar.out Correct!
 INFO:root:Checking dev/mixedcallchainexpr.out
-INFO:root:Diff between reference and your output for dev/mixedcallchainexpr.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--112031
-+112-231
+INFO:root:dev/mixedcallchainexpr.out Correct!
 INFO:root:Checking dev/boolcall1.out
 INFO:root:dev/boolcall1.out Correct!
 INFO:root:Checking dev/boolcallcalleeexpr.out
@@ -262,24 +184,21 @@ INFO:root:Diff between reference and your output for dev/stringconst2.out
 INFO:root:
 --- reference
 +++ your-output
-@@ -1 +0,0 @@
+@@ -1 +1 @@
 -hello, world
++""
 INFO:root:Checking dev/stringconst3.out
 INFO:root:Diff between reference and your output for dev/stringconst3.out
 INFO:root:
 --- reference
 +++ your-output
-@@ -1 +0,0 @@
+@@ -1 +1 @@
 -hello, world
++"""
 INFO:root:Checking dev/method2.out
 INFO:root:dev/method2.out Correct!
 INFO:root:Checking dev/returnemptyparens.out
-INFO:root:Diff between reference and your output for dev/returnemptyparens.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--1
+INFO:root:dev/returnemptyparens.out Correct!
 INFO:root:Checking dev/call0.out
 INFO:root:dev/call0.out Correct!
 INFO:root:Checking dev/bintneq.out
@@ -297,8 +216,9 @@ INFO:root:Diff between reference and your output for dev/externprintstring.out
 INFO:root:
 --- reference
 +++ your-output
-@@ -1 +0,0 @@
+@@ -1 +1 @@
 -hello world
++"
 INFO:root:Checking dev/charexprprint.out
 INFO:root:dev/charexprprint.out Correct!
 INFO:root:Checking dev/arith4.out
@@ -308,17 +228,6 @@ INFO:root:dev/intcallchain3.out Correct!
 INFO:root:Checking dev/emptyblock.out
 INFO:root:dev/emptyblock.out Correct!
 INFO:root:Checking dev/intmethod.out
-INFO:root:Diff between reference and your output for dev/intmethod.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +0,0 @@
--1
+INFO:root:dev/intmethod.out Correct!
 INFO:root:Checking dev/inthexconst.out
-INFO:root:Diff between reference and your output for dev/inthexconst.out
-INFO:root:
---- reference
-+++ your-output
-@@ -1 +1 @@
--06575-6575
-+000
+INFO:root:dev/inthexconst.out Correct!

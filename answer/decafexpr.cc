@@ -20,22 +20,19 @@ void LogError(const char *Str) {
 }
 
 llvm::Value *LogErrorV(const char *Str) {
+	cout << "-1";
   LogError(Str);
   return nullptr;
 }
 
 static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Type* t, llvm::Function *TheFunction,
-                                          const std::string &VarName) {
+                                          const std::string &VarName, llvm::Value* arrsize = NULL) {
 	llvm::IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
-	return TmpB.CreateAlloca(t, NULL, VarName.c_str());
+	return TmpB.CreateAlloca(t, arrsize, VarName.c_str());
 }
 
 static llvm::Value* boolcorrection(llvm::Value* b) {
-	llvm::ConstantInt* bi = (llvm::ConstantInt*) b;
-	if (*bi->getValue().getRawData() % 2) {
-		return llvm::ConstantInt::get(Context, llvm::APInt(32, 1));
-	}
-	return llvm::ConstantInt::get(Context, llvm::APInt(32, 0));
+	return Builder.CreateAnd(llvm::ConstantInt::get(Context, llvm::APInt(32, 1)), b);
 }
 
 /// decafAST - Base class for all abstract syntax tree nodes.
@@ -47,7 +44,7 @@ public:
   virtual TYPEs getType() { return V_BAD; }
 };
 
-static std::map<std::string, decafAST*> FunctionProtos;
+static std::map<std::string, llvm::Function*> FunctionProtos;
 
 string convertescape(string s) {
 	string res = "";
@@ -257,6 +254,14 @@ class numericAST : public decafAST {
 	int data;
 public:
 	numericAST(int data) : data(data) {}
+	numericAST(string data) {
+		if (data[1] == 'x' || data[1] == 'X') {
+			size_t pos = 2;
+			this->data = stoi(data, &pos, 16);
+		} else {
+			this->data = stoi(data);
+		}
+	}
 	string str() { return "NumberExpr(" + to_string((int)data) + ")"; }
 	llvm::Value* Codegen() {
 		llvm::Value *val = llvm::ConstantInt::get(Context, llvm::APInt(32, data));
@@ -271,9 +276,14 @@ public:
 	stringAST(string data) : data(data) {}
 	string str() { return "StringConstant(" + data + ")"; }
 	llvm::Value* Codegen() {
-		llvm::Value *val = llvm::ConstantDataArray::get(Context, 
-			llvm::ArrayRef<uint16_t>((uint16_t*) data.c_str(), data.length()));
-		return val;
+		llvm::Value* len = llvm::ConstantInt::get(Context, llvm::APInt(32, data.length()));
+		llvm::AllocaInst *Alloca = Builder.CreateAlloca(llvm::Type::getInt32Ty(Context), len, "");
+		size_t idx = 0;
+		for (char c : data) {
+			llvm::Value* val = llvm::ConstantInt::get(Context, llvm::APInt(32, c));
+			Builder.CreateAlignedStore(val, Alloca, idx++);
+		}
+		return Alloca;
 	}
 	virtual TYPEs getType() { return V_STRING; }
 };
@@ -429,7 +439,7 @@ public:
 	llvm::Value* Codegen() {
 		auto *FnIR = proto();
 		if (FnIR) {
-			FunctionProtos[Name] = this;
+			FunctionProtos[Name] = (llvm::Function*) FnIR;
 		} else {
 			FnIR->dump();
 		}
@@ -461,8 +471,14 @@ public:
 		}
 		return string("BinaryExpr(") + getString(op) + "," + getString(lvalue) + "," + getString(rvalue) + ")"; 
 	}
-	llvm::Value* res;
+	virtual TYPEs getType() {
+		if (!rvalue) { // unary only
+			return lvalue->getType();
+		}
+		return V_BAD;
+	}
 	llvm::Value* Codegen() {
+		llvm::Value* res;
 		llvm::Value *L = lvalue->Codegen();
 		if (!rvalue) { // unary
 			if (!L) {
@@ -554,6 +570,9 @@ public:
 			return string ("VariableExpr(") + id + ")";
 		}
 		return string("ArrayLocExpr(") + id + "," + getString(index) + ")"; 
+	}
+	virtual TYPEs getType() {
+		return NamedValues.getType(id);
 	}
 	llvm::Value* Codegen() {
 		llvm::Value *val = NamedValues[id];
@@ -681,7 +700,9 @@ class MethodDeclAST : public ExternAST {
 	blockAST* block;
 public:
 	MethodDeclAST(string Name, typeSymAST* retType, decafStmtList* params, blockAST* block)
-		: ExternAST(Name, retType, params), block(block) {}
+		: ExternAST(Name, retType, params), block(block) {
+			FunctionProtos[this->Name] = (llvm::Function*) this->proto();
+		}
 	~MethodDeclAST() {
 		if (NULL != block) {
 			delete block;
@@ -694,7 +715,7 @@ public:
 	llvm::Value* Codegen() {
 		llvm::Function *TheFunction = TheModule->getFunction(this->Name);
 		if (!TheFunction) {
-			TheFunction = (llvm::Function*) this->proto();
+			TheFunction = FunctionProtos[this->Name];
 		}
 		if (!TheFunction) {
 			return NULL;
@@ -720,26 +741,36 @@ public:
 				Builder.CreateStore(&Arg, Alloca);
 
 				// Add arguments to variable symbol table.
-				NamedValues.method_args(VarName, Alloca);
+				NamedValues.method_args(VarName, Alloca, v->getType());
 				pit++;
 			}
 		}
 
-		if (llvm::Value *RetVal = block->Codegen()) {
-			// Finish off the function.
-			if (this->Name.compare("main") != 0) {
-				if (RetVal->getType()->isVoidTy()) {
-					Builder.CreateRet(NULL);
-				} else {
-					Builder.CreateRet(RetVal);
-				}
+		llvm::Type* rt = TheFunction->getFunctionType()->getReturnType();
+		llvm::Value *RetVal = block->Codegen();
+		// Finish off the function.
+		if (this->Name.compare("main") == 0 && RetVal) {
+			Builder.CreateRet(llvm::ConstantInt::get(Context, llvm::APInt(32, 0)));
+		} else if (!RetVal && rt->isVoidTy()) {
+			Builder.CreateRetVoid();
+		} else if (RetVal->getType() == rt) {
+			if (rt->isVoidTy()) {
+				Builder.CreateRetVoid();
+			} else {
+				Builder.CreateRet(RetVal);
 			}
 		} else {
-			Builder.CreateRet(NULL);
+			// return type mismatch
+			/*LogErrorV("Bad body");
+	  		TheFunction->eraseFromParent();
+	  		return NULL;*/
+	  		Builder.CreateRet(llvm::Constant::getNullValue(rt));
 		}
+
 		// Validate the generated code, checking for consistency.
 		llvm::verifyFunction(*TheFunction);
 		return TheFunction;
+		
 	}
 };
 
@@ -795,6 +826,7 @@ public:
 		return string("ReturnStmt(") + getString(ret) + ")";
 	}
 	llvm::Value* Codegen() {
+		if (!ret) return NULL;
 		return ret->Codegen();
 	}
 };

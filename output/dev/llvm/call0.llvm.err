@@ -1,6 +1,10 @@
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
+define i32 @main() {
+entry:
+  call void @test()
+  ret i32 0
+}
 
 define void @test() {
 entry:
@@ -8,8 +12,4 @@ entry:
   ret void
 }
 
-define i32 @main() {
-entry:
-  call void @test()
-  ret i32 0
-}
+declare void @print_int(i32)

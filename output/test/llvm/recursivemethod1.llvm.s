@@ -1,17 +1,5 @@
 	.section	__TEXT,__text,regular,pure_instructions
 	.macosx_version_min 10, 11
-	.globl	_test
-	.align	4, 0x90
-_test:                                  ## @test
-	.cfi_startproc
-## BB#0:                                ## %entry
-	movl	%edi, -8(%rsp)
-	movl	$10, -4(%rsp)
-	movl	-8(%rsp), %eax
-	addl	$10, %eax
-	retq
-	.cfi_endproc
-
 	.globl	_main
 	.align	4, 0x90
 _main:                                  ## @main
@@ -27,6 +15,18 @@ Ltmp0:
 	callq	_print_int
 	xorl	%eax, %eax
 	popq	%rcx
+	retq
+	.cfi_endproc
+
+	.globl	_test
+	.align	4, 0x90
+_test:                                  ## @test
+	.cfi_startproc
+## BB#0:                                ## %entry
+	movl	%edi, -8(%rsp)
+	movl	$10, -4(%rsp)
+	movl	-8(%rsp), %eax
+	addl	$10, %eax
 	retq
 	.cfi_endproc
 

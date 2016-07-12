@@ -7,7 +7,11 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
+define i32 @main() {
+entry:
+  call void @test(i32 10, i32 13)
+  ret i32 0
+}
 
 define void @test(i32 %a, i32 %b) {
 entry:
@@ -22,11 +26,7 @@ entry:
   ret void
 }
 
-define i32 @main() {
-entry:
-  call void @test(i32 10, i32 13)
-  ret i32 0
-}
+declare void @print_int(i32)
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm.bc" ... ok
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/forward.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok

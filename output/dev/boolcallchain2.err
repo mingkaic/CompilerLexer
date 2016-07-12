@@ -7,15 +7,10 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
-
-define void @test2(i32 %a) {
+define i32 @main() {
 entry:
-  %a1 = alloca i32
-  store i32 %a, i32* %a1
-  %a2 = load i32, i32* %a1
-  call void @print_int(i32 %a2)
-  ret void
+  call void @test1(i32 1)
+  ret i32 0
 }
 
 define void @test1(i32 %a) {
@@ -29,11 +24,16 @@ entry:
   ret void
 }
 
-define i32 @main() {
+define void @test2(i32 %a) {
 entry:
-  call void @test1(i32 1)
-  ret i32 0
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  %a2 = load i32, i32* %a1
+  call void @print_int(i32 %a2)
+  ret void
 }
+
+declare void @print_int(i32)
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm.bc" ... ok
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/boolcallchain2.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok

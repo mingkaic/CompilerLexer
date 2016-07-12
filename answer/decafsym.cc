@@ -67,8 +67,9 @@ public:
 		}
 		return V_BAD;
 	}
-	void method_args(string name, llvm::AllocaInst* v) {
+	void method_args(string name, llvm::AllocaInst* v, TYPEs t) {
 		(*methodbuffer)[name].mem = v;
+		(*methodbuffer)[name].t = t;
 	}
 	int enterscope() {
 		content.push_front(methodbuffer);

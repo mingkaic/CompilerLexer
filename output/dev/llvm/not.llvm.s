@@ -12,9 +12,9 @@ Ltmp0:
 	callq	_print_int
 	movl	$1, %edi
 	callq	_print_int
-	movl	$-1, %edi
+	movl	$1, %edi
 	callq	_print_int
-	movl	$-2, %edi
+	xorl	%edi, %edi
 	callq	_print_int
 	xorl	%edi, %edi
 	callq	_print_int

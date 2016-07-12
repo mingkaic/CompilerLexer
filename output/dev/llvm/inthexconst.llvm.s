@@ -10,9 +10,9 @@ Ltmp0:
 	.cfi_def_cfa_offset 16
 	xorl	%edi, %edi
 	callq	_print_int
-	xorl	%edi, %edi
+	movl	$6575, %edi             ## imm = 0x19AF
 	callq	_print_int
-	xorl	%edi, %edi
+	movl	$-6575, %edi            ## imm = 0xFFFFFFFFFFFFE651
 	callq	_print_int
 	xorl	%eax, %eax
 	popq	%rcx

@@ -1,9 +1,41 @@
 ; ModuleID = 'Test'
 
-declare void @print_string(i32*)
-
 define i32 @main() {
 entry:
-  call void @print_string([31 x i16] [i16 12578, i16 29788, i16 23602, i16 13174, i16 29276, i16 23604, i16 13678, i16 24924, i16 23606, i16 14182, i16 25180, i16 23608, i16 14684, i16 8796, i16 12337, i16 34, i16 19192, i16 -3392, i16 32761, i16 0, i16 19192, i16 -3392, i16 32761, i16 0, i16 19152, i16 -3392, i16 32761, i16 0, i16 0, i16 0, i16 0])
+  %0 = alloca i32, i32 31
+  store i32 34, i32* %0
+  store i32 49, i32* %0, align 1
+  store i32 92, i32* %0, align 2
+  store i32 116, i32* %0, align 2
+  store i32 50, i32* %0, align 4
+  store i32 92, i32* %0, align 4
+  store i32 118, i32* %0, align 4
+  store i32 51, i32* %0, align 4
+  store i32 92, i32* %0, align 8
+  store i32 114, i32* %0, align 8
+  store i32 52, i32* %0, align 8
+  store i32 92, i32* %0, align 8
+  store i32 110, i32* %0, align 8
+  store i32 53, i32* %0, align 8
+  store i32 92, i32* %0, align 8
+  store i32 97, i32* %0, align 8
+  store i32 54, i32* %0, align 16
+  store i32 92, i32* %0, align 16
+  store i32 102, i32* %0, align 16
+  store i32 55, i32* %0, align 16
+  store i32 92, i32* %0, align 16
+  store i32 98, i32* %0, align 16
+  store i32 56, i32* %0, align 16
+  store i32 92, i32* %0, align 16
+  store i32 92, i32* %0, align 16
+  store i32 57, i32* %0, align 16
+  store i32 92, i32* %0, align 16
+  store i32 34, i32* %0, align 16
+  store i32 49, i32* %0, align 16
+  store i32 48, i32* %0, align 16
+  store i32 34, i32* %0, align 16
+  call void @print_string(i32* %0)
   ret i32 0
 }
+
+declare void @print_string(i32*)

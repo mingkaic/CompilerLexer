@@ -1,9 +1,14 @@
 ; ModuleID = 'Test'
 
-declare void @print_string(i32*)
-
 define i32 @main() {
 entry:
-  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 32])
+  %0 = alloca i32, i32 4
+  store i32 34, i32* %0
+  store i32 92, i32* %0, align 1
+  store i32 34, i32* %0, align 2
+  store i32 34, i32* %0, align 2
+  call void @print_string(i32* %0)
   ret i32 0
 }
+
+declare void @print_string(i32*)

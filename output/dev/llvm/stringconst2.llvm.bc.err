@@ -1,3 +1,0 @@
-/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm:7:13: error: '@print_string' defined with type 'void (i32*)*'
-  call void @print_string([8 x i16] [i16 26658, i16 27749, i16 28524, i16 8748, i16 0, i16 0, i16 0, i16 736])
-            ^

@@ -7,8 +7,6 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'C'
 
-declare void @print_int(i32)
-
 define i32 @main() {
 entry:
   %y1 = alloca i32
@@ -30,6 +28,8 @@ entry:
   call void @print_int(i32 %y5)
   ret i32 0
 }
+
+declare void @print_int(i32)
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm.bc" ... ok
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/2bool-blocks.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok

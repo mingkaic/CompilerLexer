@@ -10,8 +10,9 @@ Ltmp0:
 	.cfi_def_cfa_offset 32
 	movl	$1, 12(%rsp)
 	movl	$1, 16(%rsp)
-	movl	$0, 20(%rsp)
-	xorl	%edi, %edi
+	movl	12(%rsp), %edi
+	andl	$1, %edi
+	movl	%edi, 20(%rsp)
 	callq	_print_int
 	xorl	%eax, %eax
 	addq	$24, %rsp

@@ -1,3 +1,0 @@
-/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/default-passes.llvm:5:7: error: value doesn't match function result type 'i32'
-  ret void
-      ^

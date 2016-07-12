@@ -1,10 +1,30 @@
 ; ModuleID = 'Test'
 
-declare void @print_string(i32*)
-
 define i32 @main() {
 entry:
-  call void @print_string([8 x i16] [i16 26658, i16 27749, i16 28524, i16 8748, i16 0, i16 0, i16 0, i16 736])
-  call void @print_string([10 x i16] [i16 8226, i16 28535, i16 27762, i16 23652, i16 8814, i16 0, i16 0, i16 0, i16 0, i16 0])
+  %0 = alloca i32, i32 8
+  store i32 34, i32* %0
+  store i32 104, i32* %0, align 1
+  store i32 101, i32* %0, align 2
+  store i32 108, i32* %0, align 2
+  store i32 108, i32* %0, align 4
+  store i32 111, i32* %0, align 4
+  store i32 44, i32* %0, align 4
+  store i32 34, i32* %0, align 4
+  call void @print_string(i32* %0)
+  %1 = alloca i32, i32 10
+  store i32 34, i32* %1
+  store i32 32, i32* %1, align 1
+  store i32 119, i32* %1, align 2
+  store i32 111, i32* %1, align 2
+  store i32 114, i32* %1, align 4
+  store i32 108, i32* %1, align 4
+  store i32 100, i32* %1, align 4
+  store i32 92, i32* %1, align 4
+  store i32 110, i32* %1, align 8
+  store i32 34, i32* %1, align 8
+  call void @print_string(i32* %1)
   ret i32 0
 }
+
+declare void @print_string(i32*)

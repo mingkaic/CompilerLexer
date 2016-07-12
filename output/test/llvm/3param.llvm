@@ -1,6 +1,10 @@
 ; ModuleID = 'C'
 
-declare void @print_int(i32)
+define i32 @main() {
+entry:
+  %calltmp = call i32 @foo(i32 1, i32 2, i32 1)
+  ret i32 0
+}
 
 define i32 @foo(i32 %x, i32 %y, i32 %z) {
 entry:
@@ -19,11 +23,7 @@ entry:
   call void @print_int(i32 %y5)
   %z6 = load i32, i32* %z3
   call void @print_int(i32 %z6)
-  ret void
-}
-
-define i32 @main() {
-entry:
-  %calltmp = call i32 @foo(i32 1, i32 2, i32 1)
   ret i32 0
 }
+
+declare void @print_int(i32)

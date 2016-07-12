@@ -7,20 +7,23 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
-
 define i32 @main() {
 entry:
   %b = alloca i32
-  store i32 0, i32* %b
+  store i1 false, i32* %b
   store i32 1, i32* %b
   store i32 1, i32* %b
-  store i32 0, i32* %b
+  store i1 false, i32* %b
   %b1 = load i32, i32* %b
   call void @print_int(i32 %b1)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.bc" ... ok
+
+declare void @print_int(i32)
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm:6:9: error: stored value and pointer type do not match
+  store i1 false, i32* %b
+        ^
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
 running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/bboolneq.llvm.exec ... ok

@@ -1,7 +1,5 @@
 ; ModuleID = 'Test'
 
-declare void @print_int(i32)
-
 define i32 @main() {
 entry:
   %y1 = alloca i32
@@ -20,3 +18,5 @@ entry:
   call void @print_int(i32 %x4)
   ret i32 0
 }
+
+declare void @print_int(i32)

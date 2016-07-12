@@ -239,7 +239,7 @@ id_list: T_ID { // one or more
     }
     ;
 
-constant: T_INTCONSTANT { $$ = new numericAST(stoi(*$1)); delete $1; }
+constant: T_INTCONSTANT { $$ = new numericAST(*$1); delete $1; }
     | T_CHARCONSTANT {
         try {
             string strrep = convertescape(*$1);
@@ -447,8 +447,6 @@ int main() {
     TheModule = new llvm::Module("Test", Context);
     // set up symbol table
     // set up dummy main function
-    // TheFunction = gen_main_def();
-    //fprintf(stderr, "ready> ");
 
     // parse the input and create the abstract syntax tree
     int retval = yyparse();
@@ -457,11 +455,14 @@ int main() {
     // remove symbol table
     // Finish off the main function.
     // return 0 from main, which is EXIT_SUCCESS
-    Builder.CreateRet(llvm::ConstantInt::get(llvm::getGlobalContext(), llvm::APInt(32, 0)));
     // Validate the generated code, checking for consistency.
     //verifyFunction(*TheFunction);
     // Print out all of the generated code to stderr
     TheModule->dump();
+
+    if (retval) {
+        cout << "-1";
+    }
 
     return(retval >= 1 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
