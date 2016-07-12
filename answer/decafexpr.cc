@@ -211,7 +211,7 @@ public:
 			case V_BOOL:
 				return llvm::Type::getInt32Ty(Context);
 			case V_STRING:
-				return llvm::Type::getInt32PtrTy(Context);
+				return llvm::Type::getInt8PtrTy(Context);
 			default:
 				return NULL; 
 		}
@@ -273,17 +273,28 @@ public:
 class stringAST : public decafAST {
 	string data;
 public:
-	stringAST(string data) : data(data) {}
+	stringAST(string data) {
+		this->data = data.substr(1, data.size()-2);
+		this->data = convertescape(this->data);
+	}
 	string str() { return "StringConstant(" + data + ")"; }
 	llvm::Value* Codegen() {
-		llvm::Value* len = llvm::ConstantInt::get(Context, llvm::APInt(32, data.length()));
-		llvm::AllocaInst *Alloca = Builder.CreateAlloca(llvm::Type::getInt32Ty(Context), len, "");
-		size_t idx = 0;
+		llvm::GlobalVariable *GS = Builder.CreateGlobalString(
+			llvm::StringRef(data.c_str(), data.size()), "gstr");
+		return Builder.CreateConstGEP2_32(GS->getValueType(), GS, 0, 0, "cast");
+		/*
+		llvm::Value* len = llvm::ConstantInt::get(Context, llvm::APInt(32, data.size()+1));
+		llvm::AllocaInst* al = Builder.CreateAlloca(llvm::Type::getInt8Ty(Context), len, "");
+		cout << *((llvm::ConstantInt*) al->getArraySize())->getValue().getRawData() << "\n";
+			cout << *((llvm::ConstantInt*)al)->getValue().getRawData() << "\n";
+		//llvm::ConstantInt8Ptr* buffer = al;
 		for (char c : data) {
-			llvm::Value* val = llvm::ConstantInt::get(Context, llvm::APInt(32, c));
-			Builder.CreateAlignedStore(val, Alloca, idx++);
+			uint8_t v = c;
+			llvm::StoreInst* ad = Builder.CreateStore(llvm::ConstantInt::get(Context, llvm::APInt(8, v)), al);
+			
+			cout << *((llvm::ConstantInt*)ad)->getValue().getRawData() << "\n";
 		}
-		return Alloca;
+		return al;*/
 	}
 	virtual TYPEs getType() { return V_STRING; }
 };

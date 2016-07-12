@@ -7,34 +7,17 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decafexpr ... ok
 ; ModuleID = 'Test'
 
+@gstr = private unnamed_addr constant [7 x i8] c"hello,\00"
+@gstr.1 = private unnamed_addr constant [8 x i8] c" world\0A\00"
+
 define i32 @main() {
 entry:
-  %0 = alloca i32, i32 8
-  store i32 34, i32* %0
-  store i32 104, i32* %0, align 1
-  store i32 101, i32* %0, align 2
-  store i32 108, i32* %0, align 2
-  store i32 108, i32* %0, align 4
-  store i32 111, i32* %0, align 4
-  store i32 44, i32* %0, align 4
-  store i32 34, i32* %0, align 4
-  call void @print_string(i32* %0)
-  %1 = alloca i32, i32 10
-  store i32 34, i32* %1
-  store i32 32, i32* %1, align 1
-  store i32 119, i32* %1, align 2
-  store i32 111, i32* %1, align 2
-  store i32 114, i32* %1, align 4
-  store i32 108, i32* %1, align 4
-  store i32 100, i32* %1, align 4
-  store i32 92, i32* %1, align 4
-  store i32 110, i32* %1, align 8
-  store i32 34, i32* %1, align 8
-  call void @print_string(i32* %1)
+  call void @print_string(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @gstr, i32 0, i32 0))
+  call void @print_string(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @gstr.1, i32 0, i32 0))
   ret i32 0
 }
 
-declare void @print_string(i32*)
+declare void @print_string(i8*)
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm.bc" ... ok
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm.s" ... ok
 linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringconst2.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok

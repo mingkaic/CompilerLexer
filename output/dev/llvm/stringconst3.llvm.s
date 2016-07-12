@@ -5,38 +5,29 @@
 _main:                                  ## @main
 	.cfi_startproc
 ## BB#0:                                ## %entry
-	subq	$88, %rsp
+	pushq	%rax
 Ltmp0:
-	.cfi_def_cfa_offset 96
-	movl	$34, 56(%rsp)
-	movl	$104, 56(%rsp)
-	movl	$101, 56(%rsp)
-	movl	$108, 56(%rsp)
-	movl	$111, 56(%rsp)
-	movl	$44, 56(%rsp)
-	movl	$34, 56(%rsp)
-	leaq	56(%rsp), %rdi
+	.cfi_def_cfa_offset 16
+	leaq	L_gstr(%rip), %rdi
 	callq	_print_string
-	movl	$34, 24(%rsp)
-	movl	$32, 24(%rsp)
-	movl	$119, 24(%rsp)
-	movl	$111, 24(%rsp)
-	movl	$114, 24(%rsp)
-	movl	$108, 24(%rsp)
-	movl	$100, 24(%rsp)
-	movl	$34, 24(%rsp)
-	leaq	24(%rsp), %rdi
+	leaq	L_gstr.1(%rip), %rdi
 	callq	_print_string
-	movl	$34, 8(%rsp)
-	movl	$92, 8(%rsp)
-	movl	$110, 8(%rsp)
-	movl	$34, 8(%rsp)
-	leaq	8(%rsp), %rdi
+	leaq	L_gstr.2(%rip), %rdi
 	callq	_print_string
 	xorl	%eax, %eax
-	addq	$88, %rsp
+	popq	%rcx
 	retq
 	.cfi_endproc
+
+	.section	__TEXT,__cstring,cstring_literals
+L_gstr:                                 ## @gstr
+	.asciz	"hello,"
+
+L_gstr.1:                               ## @gstr.1
+	.asciz	" world"
+
+L_gstr.2:                               ## @gstr.2
+	.asciz	"\n"
 
 
 .subsections_via_symbols
