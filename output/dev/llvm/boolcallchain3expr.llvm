@@ -5,6 +5,7 @@ declare void @print_int(i32)
 define void @test3(i32 %a) {
 entry:
   %a1 = alloca i32
+  store i32 %a, i32* %a1
   %a2 = load i32, i32* %a1
   call void @print_int(i32 %a2)
   ret void
@@ -13,6 +14,7 @@ entry:
 define void @test2(i32 %a) {
 entry:
   %a1 = alloca i32
+  store i32 %a, i32* %a1
   %a2 = load i32, i32* %a1
   call void @print_int(i32 %a2)
   %a3 = load i32, i32* %a1
@@ -24,6 +26,7 @@ entry:
 define void @test1(i32 %a) {
 entry:
   %a1 = alloca i32
+  store i32 %a, i32* %a1
   %a2 = load i32, i32* %a1
   call void @print_int(i32 %a2)
   %a3 = load i32, i32* %a1

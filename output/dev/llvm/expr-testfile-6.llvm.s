@@ -8,9 +8,9 @@ _main:                                  ## @main
 	pushq	%rax
 Ltmp0:
 	.cfi_def_cfa_offset 16
-	movl	$-2, %edi
+	xorl	%edi, %edi
 	callq	_print_int
-	movl	$-1, %edi
+	movl	$1, %edi
 	callq	_print_int
 	xorl	%eax, %eax
 	popq	%rcx

@@ -11,10 +11,7 @@ Ltmp0:
 	movl	$1, 8(%rsp)
 	movl	$0, 12(%rsp)
 	movl	$1, 16(%rsp)
-	movl	12(%rsp), %eax
-	andl	$-2, %eax
-	orl	8(%rsp), %eax
-	movl	%eax, 4(%rsp)
+	movl	$0, 4(%rsp)
 	movl	$0, 20(%rsp)
 	xorl	%edi, %edi
 	callq	_print_int

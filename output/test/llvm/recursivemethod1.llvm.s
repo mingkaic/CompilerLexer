@@ -5,8 +5,10 @@
 _test:                                  ## @test
 	.cfi_startproc
 ## BB#0:                                ## %entry
+	movl	%edi, -8(%rsp)
 	movl	$10, -4(%rsp)
-	movl	$10, %eax
+	movl	-8(%rsp), %eax
+	addl	$10, %eax
 	retq
 	.cfi_endproc
 

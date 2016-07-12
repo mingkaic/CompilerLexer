@@ -6,6 +6,7 @@ define void @test(i32 %x) {
 entry:
   %y = alloca i32
   %x1 = alloca i32
+  store i32 %x, i32* %x1
   store i32 undef, i32* %y
   %x2 = load i32, i32* %x1
   %y3 = load i32, i32* %y

@@ -13,6 +13,8 @@ define void @test3(i32 %a, i32 %x) {
 entry:
   %x2 = alloca i32
   %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %x, i32* %x2
   %x3 = load i32, i32* %x2
   call void @print_int(i32 %x3)
   %a4 = load i32, i32* %a1
@@ -24,6 +26,8 @@ define void @test2(i32 %x, i32 %a) {
 entry:
   %a2 = alloca i32
   %x1 = alloca i32
+  store i32 %x, i32* %x1
+  store i32 %a, i32* %a2
   %x3 = load i32, i32* %x1
   call void @print_int(i32 %x3)
   %a4 = load i32, i32* %a2
@@ -40,6 +44,8 @@ define void @test1(i32 %a, i32 %x) {
 entry:
   %x2 = alloca i32
   %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %x, i32* %x2
   %x3 = load i32, i32* %x2
   call void @print_int(i32 %x3)
   %a4 = load i32, i32* %a1

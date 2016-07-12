@@ -12,28 +12,12 @@ declare void @print_int(i32)
 define i32 @main() {
 entry:
   %x = alloca i32
-  call void @print_int(i1 true)
-  call void @print_int(i1 false)
-  call void @print_int(i1 false)
+  call void @print_int(i32 1)
+  call void @print_int(i32 0)
+  call void @print_int(i32 0)
   ret i32 0
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.bc" ... failed (1)
-/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm:8:13: error: '@print_int' defined with type 'void (i32)*'
-  call void @print_int(i1 true)
-            ^
-converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.s" ... failed (1)
-/Users/cmk/llvm/bin/llc: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.bc: error: Could not open input file: No such file or directory
-linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... failed (1)
-clang: error: no such file or directory: '/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.s'
-running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.exec ...Traceback (most recent call last):
-  File "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/llvm-run", line 172, in <module>
-    result &= run("running", "%s.llvm.exec" % (out_prefix), ".run", None, out_prefix)
-  File "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/llvm-run", line 90, in run
-    retval = subprocess.call(shlex.split(cmd), stdin=infile, stdout=outoutfile, stderr=outerrfile)
-  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 522, in call
-    return Popen(*popenargs, **kwargs).wait()
-  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 710, in __init__
-    errread, errwrite)
-  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 1335, in _execute_child
-    raise child_exception
-OSError: [Errno 2] No such file or directory
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.s" ... ok
+linking:gcc -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.exec" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/answer/decaf-stdlib.c" ... ok
+running:/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/lt.llvm.exec ... ok

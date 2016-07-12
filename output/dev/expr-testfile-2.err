@@ -23,8 +23,8 @@ entry:
   %y2 = load i32, i32* %y
   %andtmp = and i32 1, %y2
   %z3 = load i32, i32* %z
-  %ortmp = or i32 %andtmp, %z3
-  store i32 %ortmp, i32* %y
+  %ortmp = or i32 0, %z3
+  store i32 0, i32* %y
   %x4 = load i32, i32* %x
   %negtmp5 = sub i32 0, %x4
   call void @print_int(i32 %negtmp5)

@@ -1,22 +1,22 @@
-LogError: Redefining variable in same scope
 ; ModuleID = 'Test'
 
 declare void @print_int(i32)
 
 define i32 @main() {
 entry:
+  %y1 = alloca i32
   %y = alloca i32
   %x = alloca i32
   store i32 958, i32* %x
-  %x1 = load i32, i32* %x
-  %multmp = mul i32 %x1, -30
+  %x2 = load i32, i32* %x
+  %multmp = mul i32 %x2, -30
   %addtmp = add i32 %multmp, 80
-  store i32 %addtmp, i32* %y
-  %y2 = load i32, i32* %y
-  %negtmp = sub i32 0, %y2
+  store i32 %addtmp, i32* %y1
+  %y3 = load i32, i32* %y1
+  %negtmp = sub i32 0, %y3
   store i32 %negtmp, i32* %x
-  store i32 -2, i32* %y
-  %x3 = load i32, i32* %x
-  call void @print_int(i32 %x3)
+  store i32 0, i32* %y
+  %x4 = load i32, i32* %x
+  call void @print_int(i32 %x4)
   ret i32 0
 }

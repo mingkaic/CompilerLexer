@@ -8,7 +8,9 @@ _test3:                                 ## @test3
 	pushq	%rax
 Ltmp0:
 	.cfi_def_cfa_offset 16
-	movl	4(%rsp), %edi
+	movl	%edi, (%rsp)
+	movl	%esi, 4(%rsp)
+	movl	%esi, %edi
 	callq	_print_int
 	movl	(%rsp), %edi
 	callq	_print_int
@@ -24,6 +26,8 @@ _test2b:                                ## @test2b
 	pushq	%rax
 Ltmp1:
 	.cfi_def_cfa_offset 16
+	movl	%edi, (%rsp)
+	movl	%esi, 4(%rsp)
 	movl	(%rsp), %edi
 	callq	_print_int
 	movl	4(%rsp), %edi
@@ -43,6 +47,8 @@ _test2a:                                ## @test2a
 	pushq	%rax
 Ltmp2:
 	.cfi_def_cfa_offset 16
+	movl	%edi, (%rsp)
+	movl	%esi, 4(%rsp)
 	movl	(%rsp), %edi
 	callq	_print_int
 	movl	4(%rsp), %edi
@@ -64,7 +70,9 @@ _test1:                                 ## @test1
 	pushq	%rax
 Ltmp3:
 	.cfi_def_cfa_offset 16
-	movl	4(%rsp), %edi
+	movl	%edi, (%rsp)
+	movl	%esi, 4(%rsp)
+	movl	%esi, %edi
 	callq	_print_int
 	movl	(%rsp), %edi
 	callq	_print_int

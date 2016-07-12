@@ -30,12 +30,21 @@ static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Type* t, llvm::Function *T
 	return TmpB.CreateAlloca(t, NULL, VarName.c_str());
 }
 
+static llvm::Value* boolcorrection(llvm::Value* b) {
+	llvm::ConstantInt* bi = (llvm::ConstantInt*) b;
+	if (*bi->getValue().getRawData() % 2) {
+		return llvm::ConstantInt::get(Context, llvm::APInt(32, 1));
+	}
+	return llvm::ConstantInt::get(Context, llvm::APInt(32, 0));
+}
+
 /// decafAST - Base class for all abstract syntax tree nodes.
 class decafAST {
 public:
   virtual ~decafAST() {}
   virtual string str() { return string(""); }
   virtual llvm::Value *Codegen() = 0;
+  virtual TYPEs getType() { return V_BAD; }
 };
 
 static std::map<std::string, decafAST*> FunctionProtos;
@@ -113,21 +122,20 @@ llvm::Value *listCodegen(list<T> vec) {
 	return val;
 }
 
-class terminalAST : public decafAST {
-	string Name;
+class breakAST : public decafAST {
 public:
-	terminalAST(string name) : Name(name) {}
-	string str() { return Name; }
+	string str() { return "BreakStmt"; }
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		return NULL;
 	}
 };
 
-enum OPs {
-	NEG, NOT, 
-	AND, OR, EQ, NEQ, LT, LE, GT, GE, 
-	ADD, MINUS, MULT, DIV, LSHI, RSHI, MOD,
+class continueAST : public decafAST {
+public:
+	string str() { return "ContinueStmt"; }
+	llvm::Value* Codegen() {
+		return NULL;
+	}
 };
 
 class opSymAST : public decafAST {
@@ -177,10 +185,6 @@ public:
 	OPs getOP() { return sym; }
 };
 
-enum TYPEs {
-	V_VOID, V_INT, V_BOOL, V_STRING,
-};
-
 class typeSymAST : public decafAST {
 	TYPEs t;
 public:
@@ -195,9 +199,11 @@ public:
 				return "BoolType";
 			case V_STRING:
 				return "StringType";
+			default:
+				return "";
 		}
-		return "";
 	}
+	virtual TYPEs getType() { return t; }
 	llvm::Value* Codegen() { return NULL; }
 	llvm::Type* Tgen() {
 		switch (t) {
@@ -239,9 +245,12 @@ public:
 		return "BoolExpr(False)"; 
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = llvm::ConstantInt::get(Context, llvm::APInt(32, data));
-		return val;
+		if (data) {
+			return llvm::ConstantInt::get(Context, llvm::APInt(32, 1));
+		}
+		return llvm::ConstantInt::get(Context, llvm::APInt(32, 0));
 	}
+	virtual TYPEs getType() { return V_BOOL; }
 };
 
 class numericAST : public decafAST {
@@ -253,6 +262,7 @@ public:
 		llvm::Value *val = llvm::ConstantInt::get(Context, llvm::APInt(32, data));
 		return val;
 	}
+	virtual TYPEs getType() { return V_INT; }
 };
 
 class stringAST : public decafAST {
@@ -265,6 +275,7 @@ public:
 			llvm::ArrayRef<uint16_t>((uint16_t*) data.c_str(), data.length()));
 		return val;
 	}
+	virtual TYPEs getType() { return V_STRING; }
 };
 
 class vardefAST : public decafAST {
@@ -275,8 +286,8 @@ public:
 	vardefAST(TYPEs in) : content("") { Type = new typeSymAST(in); }
 	vardefAST(string content, typeSymAST* Type) : content(content), Type(Type) {}
 	~vardefAST() { if (NULL != Type) { delete Type; } }
-	string getContent() {return content;}
-	string getType() {return getString(Type);}
+	string getContent() { return content; }
+	TYPEs getType() { return Type->getType(); }
 	string str() { 
 		string res = "VarDef(";
 		if (0 != content.size()) {
@@ -291,12 +302,13 @@ public:
 		llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
 
 		// Create an alloca for the variable in the entry block.
-		if (NamedValues[content]) {
+		if (NamedValues.curscope(content)) {
 			LogErrorV("Redefining variable in same scope");
 		} else {
 			// allocate memory
 			llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(Type->Tgen(), TheFunction, content);
 			NamedValues[content] = Alloca;
+			NamedValues.setType(content, Type->getType());
 			return Alloca;
 		}
 		return NULL;
@@ -370,6 +382,7 @@ public:
 			// allocate memory
 			llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(typ->Tgen(), TheFunction, Name);
 			NamedValues[Name] = Alloca;
+			NamedValues.setType(Name, typ->getType());
 			return Alloca;
 		}
 		return NULL;
@@ -448,6 +461,7 @@ public:
 		}
 		return string("BinaryExpr(") + getString(op) + "," + getString(lvalue) + "," + getString(rvalue) + ")"; 
 	}
+	llvm::Value* res;
 	llvm::Value* Codegen() {
 		llvm::Value *L = lvalue->Codegen();
 		if (!rvalue) { // unary
@@ -459,7 +473,11 @@ public:
 				case NEG:
 					return Builder.CreateNeg(L, "negtmp");
 				case NOT:
-					return Builder.CreateNot(L, "nottmp");
+					res = Builder.CreateNot(L, "nottmp");
+					if (lvalue->getType() == V_BOOL) {
+						res = boolcorrection(res);
+					}
+					return res;
 				default:
 					break;
 			}
@@ -471,21 +489,37 @@ public:
 
 			switch (op->getOP()) {
 				case AND:
-					return Builder.CreateAnd(L, R, "andtmp");
+					res = Builder.CreateAnd(L, R, "andtmp");
+					res = boolcorrection(res);
+					return res;
 				case OR:
-					return Builder.CreateOr(L, R, "ortmp");
+					res = Builder.CreateOr(L, R, "ortmp");
+					res = boolcorrection(res);
+					return res;
 				case EQ:
-					return Builder.CreateICmpEQ(L, R, "eqtmp");
+					res = Builder.CreateICmpEQ(L, R, "eqtmp");
+					res = boolcorrection(res);
+					return res;
 				case NEQ: 
-					return Builder.CreateICmpNE(L, R, "netmp");
+					res = Builder.CreateICmpNE(L, R, "netmp");
+					res = boolcorrection(res);
+					return res;
 				case LT:
-					return Builder.CreateICmpULT(L, R, "lttmp");
+					res = Builder.CreateICmpULT(L, R, "lttmp");
+					res = boolcorrection(res);
+					return res;
 				case LE:
-					return Builder.CreateICmpULE(L, R, "letmp");
+					res = Builder.CreateICmpULE(L, R, "letmp");
+					res = boolcorrection(res);
+					return res;
 				case GT:
-					return Builder.CreateICmpUGT(L, R, "gttmp");
+					res = Builder.CreateICmpUGT(L, R, "gttmp");
+					res = boolcorrection(res);
+					return res;
 				case GE: 
-					return Builder.CreateICmpUGE(L, R, "getmp");
+					res = Builder.CreateICmpUGE(L, R, "getmp");
+					res = boolcorrection(res);
+					return res;
 				case ADD:
 					return Builder.CreateAdd(L, R, "addtmp");
 				case MINUS:
@@ -546,7 +580,7 @@ public:
         return string("Block(") + getString(varList) + "," + getString(stateList) + ")";
 	}
 	llvm::Value* Codegen() {
-		NamedValues.enterscope();
+		int scopeid = NamedValues.enterscope();
 		llvm::Value *val = NULL;
 		if (NULL != varList) {
 			val = varList->Codegen();
@@ -554,6 +588,7 @@ public:
 		if (NULL != stateList) {
 			val = stateList->Codegen();
 		}
+
 		NamedValues.exitscope();
 		return val;
 	}
@@ -664,6 +699,7 @@ public:
 		if (!TheFunction) {
 			return NULL;
 		}
+
 		if (!TheFunction->empty()) {
 			return (llvm::Function*)LogErrorV("Function cannot be redefined.");
 		}
@@ -672,13 +708,20 @@ public:
 
 		// Record the function arguments in the NamedValues map.
 		if (this->args) {
-			for (list<decafAST *>::iterator pit = args->begin();
-				pit != args->end(); pit++) {
+			list<decafAST *>::iterator pit = args->begin();
+			for (auto &Arg : TheFunction->args()) {
 				vardefAST* v = (vardefAST*) *pit;
 				string VarName = v->getName();
 
+				// Create an alloca for this variable.
 				llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(v->Tgen(), TheFunction, VarName);
+
+				// Store the initial value into the alloca.
+				Builder.CreateStore(&Arg, Alloca);
+
+				// Add arguments to variable symbol table.
 				NamedValues.method_args(VarName, Alloca);
+				pit++;
 			}
 		}
 
@@ -715,19 +758,25 @@ public:
 		if (!callee) {
 			return LogErrorV("Unknown function referenced");
 		}
-
-		// If argument mismatch error.
-		if (callee->arg_size() != args->size()) {
-			return LogErrorV("Incorrect # arguments passed");
-		}
-
 		std::vector<llvm::Value *> ArgsV;
 
-		for (list<decafAST *>::iterator it = args->begin(); 
-			it != args->end(); it++) {
-			ArgsV.push_back((*it)->Codegen());
-			if (!ArgsV.back()) {
-				return nullptr;
+		if (args) {
+			// If argument mismatch error.
+			if (callee->arg_size() != args->size()) {
+				return LogErrorV("Incorrect # arguments passed");
+			}
+
+			llvm::ArrayRef<llvm::Type*> fs = callee->getFunctionType()->params();
+			auto fit = fs.begin();
+			for (list<decafAST *>::iterator it = args->begin(); 
+				it != args->end(); it++) {
+
+				llvm::Value* vd = (*it)->Codegen();
+
+				ArgsV.push_back(vd);
+				if (!ArgsV.back()) {
+					return nullptr;
+				}
 			}
 		}
 		if (callee->getReturnType()->isVoidTy()) {
@@ -746,8 +795,7 @@ public:
 		return string("ReturnStmt(") + getString(ret) + ")";
 	}
 	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
+		return ret->Codegen();
 	}
 };
 
@@ -781,7 +829,11 @@ public:
 		llvm::Value *lval = NamedValues[lvalue1];
 		llvm::Value *rval = rvalue->Codegen();
 
-    	Builder.CreateStore(rval, lval);
+		if (V_BOOL == NamedValues.getType(lvalue1)) {
+			rval = boolcorrection(rval);
+		}
+
+		Builder.CreateStore(rval, lval);
 
 		return rval;
 	}

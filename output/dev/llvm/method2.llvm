@@ -1,4 +1,3 @@
-LogError: Redefining variable in same scope
 ; ModuleID = 'Test'
 
 declare void @print_int(i32)
@@ -8,6 +7,8 @@ entry:
   %x = alloca i32
   %b2 = alloca i32
   %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %b, i32* %b2
   store i32 1, i32* %x
   %a3 = load i32, i32* %a1
   call void @print_int(i32 %a3)
@@ -20,12 +21,13 @@ entry:
 
 define i32 @main() {
 entry:
+  %x = alloca i32
   store i32 1, i32* %x
-  %x = load i32, i32* %x
-  call void @print_int(i32 %x)
   %x1 = load i32, i32* %x
+  call void @print_int(i32 %x1)
   %x2 = load i32, i32* %x
-  %addtmp = add i32 %x2, 1
-  call void @test(i32 %x1, i32 %addtmp)
+  %x3 = load i32, i32* %x
+  %addtmp = add i32 %x3, 1
+  call void @test(i32 %x2, i32 %addtmp)
   ret i32 0
 }

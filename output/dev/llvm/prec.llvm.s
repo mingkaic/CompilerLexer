@@ -10,7 +10,7 @@ Ltmp0:
 	.cfi_def_cfa_offset 32
 	movl	$3, 8(%rsp)
 	movl	$7, 12(%rsp)
-	movl	$-1, 20(%rsp)
+	movl	$1, 20(%rsp)
 	movl	$-3, 16(%rsp)
 	movl	8(%rsp), %edi
 	callq	_print_int

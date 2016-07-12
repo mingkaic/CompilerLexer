@@ -11,12 +11,12 @@ declare void @print_string(i32*)
 
 define i32 @main() {
 entry:
-  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 96])
+  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 32])
   ret i32 0
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm.bc" ... failed (1)
 /Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm:7:13: error: '@print_string' defined with type 'void (i32*)*'
-  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 96])
+  call void @print_string([4 x i16] [i16 23586, i16 8738, i16 0, i16 32])
             ^
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm.s" ... failed (1)
 /Users/cmk/llvm/bin/llc: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/stringescapequote.llvm.bc: error: Could not open input file: No such file or directory

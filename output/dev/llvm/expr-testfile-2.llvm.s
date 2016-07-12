@@ -12,7 +12,7 @@ Ltmp0:
 	movl	$-958, 12(%rsp)         ## imm = 0xFFFFFFFFFFFFFC42
 	movl	$1, 16(%rsp)
 	movl	$0, 20(%rsp)
-	andl	$1, 16(%rsp)
+	movl	$0, 16(%rsp)
 	movl	12(%rsp), %edi
 	negl	%edi
 	callq	_print_int

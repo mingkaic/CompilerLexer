@@ -11,12 +11,12 @@ declare void @print_int(i32)
 
 define i32 @main() {
 entry:
-  call void @print_int(i32 -2)
-  call void @print_int(i32 -1)
-  call void @print_int(i32 1)
   call void @print_int(i32 0)
-  call void @print_int(i32 -2)
+  call void @print_int(i32 1)
   call void @print_int(i32 -1)
+  call void @print_int(i32 -2)
+  call void @print_int(i32 0)
+  call void @print_int(i32 1)
   ret i32 0
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/not.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/dev/llvm/not.llvm.bc" ... ok

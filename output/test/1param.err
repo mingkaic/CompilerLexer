@@ -12,6 +12,7 @@ declare void @print_int(i32)
 define i32 @foo(i32 %x) {
 entry:
   %x1 = alloca i32
+  store i32 %x, i32* %x1
   store i32 1, i32* %x1
   %x2 = load i32, i32* %x1
   call void @print_int(i32 %x2)
@@ -25,7 +26,7 @@ entry:
   ret i32 0
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm.bc" ... failed (1)
-/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm:11:7: error: value doesn't match function result type 'i32'
+/Users/cmk/llvm/bin/llvm-as: /Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm:12:7: error: value doesn't match function result type 'i32'
   ret void
       ^
 converting to native code:/Users/cmk/llvm/bin/llc "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm.bc" -o "/Users/cmk/Developer/cworkspace/compiler/hw3/Lexer/output/test/llvm/1param.llvm.s" ... failed (1)

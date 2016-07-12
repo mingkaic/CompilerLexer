@@ -8,7 +8,7 @@ _test:                                  ## @test
 	pushq	%rax
 Ltmp0:
 	.cfi_def_cfa_offset 16
-	movl	4(%rsp), %edi
+	movl	%edi, 4(%rsp)
 	addl	$10, %edi
 	callq	_print_int
 	popq	%rax

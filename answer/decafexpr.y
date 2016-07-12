@@ -335,8 +335,8 @@ statement: block { $$ = $1; }
     | T_RETURN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
     | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
     | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST($3); }
-    | T_BREAK T_SEMICOLON { $$ = new terminalAST("BreakStmt"); }
-    | T_CONTINUE T_SEMICOLON { $$ = new terminalAST("ContinueStmt"); }
+    | T_BREAK T_SEMICOLON { $$ = new breakAST(); }
+    | T_CONTINUE T_SEMICOLON { $$ = new continueAST(); }
     ;
 
 assign_list: assign { // one or more

@@ -13,6 +13,8 @@ define void @test(i32 %a, i32 %b) {
 entry:
   %b2 = alloca i32
   %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %b, i32* %b2
   call void @print_int(i32 2)
   ret void
 }

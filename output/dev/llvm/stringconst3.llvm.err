@@ -4,7 +4,7 @@ declare void @print_string(i32*)
 
 define i32 @main() {
 entry:
-  call void @print_string([8 x i16] [i16 26658, i16 27749, i16 28524, i16 8748, i16 0, i16 0, i16 0, i16 528])
+  call void @print_string([8 x i16] [i16 26658, i16 27749, i16 28524, i16 8748, i16 0, i16 0, i16 0, i16 656])
   call void @print_string([8 x i16] [i16 8226, i16 28535, i16 27762, i16 8804, i16 0, i16 0, i16 0, i16 0])
   call void @print_string([4 x i16] [i16 23586, i16 8814, i16 0, i16 0])
   ret i32 0
