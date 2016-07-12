@@ -1,5 +1,5 @@
 
-#include "decafexpr-defs.h"
+#include "decafcomp-defs.h"
 #include <list>
 #include <ostream>
 #include <iostream>
@@ -8,7 +8,7 @@
 #include "decafsym.cc"
 
 #ifndef YYTOKENTYPE
-#include "decafexpr.tab.h"
+#include "decafcomp.tab.h"
 #endif
 
 using namespace std;
@@ -16,13 +16,13 @@ using namespace std;
 static symbtbl NamedValues;
 
 void LogError(const char *Str) {
-  fprintf(stderr, "LogError: %s\n", Str);
+	fprintf(stderr, "LogError: %s\n", Str);
 }
 
 llvm::Value *LogErrorV(const char *Str) {
 	cout << "-1";
-  LogError(Str);
-  return nullptr;
+	LogError(Str);
+	return nullptr;
 }
 
 static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Type* t, llvm::Function *TheFunction,

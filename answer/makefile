@@ -2,14 +2,14 @@ llvmconfig=llvm-config-3.8
 cppflags=-std=c++11 -Wno-deprecated-register
 lexlib=l
 yacclib=y
-llvmlibs=-lz -lncurses
+llvmlibs=-lz -lncurses -ldl -lpthread
 mylibs=-l$(yacclib) -l$(lexlib) $(llvmlibs)
 bindir=.
 rm=/bin/rm -f
 mv=/bin/mv -f
-llvmcpp=decafsym
+llvmcpp=
 llvmfiles=
-llvmtargets=decafexpr default
+llvmtargets=decafcomp default
 
 all: $(targets) $(cpptargets) $(llvmfiles) $(llvmtargets) $(llvmcpp)
 

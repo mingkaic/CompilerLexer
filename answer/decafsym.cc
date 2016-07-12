@@ -1,7 +1,7 @@
 #include <string>
 #include <map>
 #include <list>
-#include "decafexpr-defs.h"
+#include "decafcomp-defs.h"
 
 using namespace std;
 

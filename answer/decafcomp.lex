@@ -1,7 +1,7 @@
 %{
 
-#include "decafexpr-defs.h"
-#include "decafexpr.tab.h"
+#include "decafcomp-defs.h"
+#include "decafcomp.tab.h"
 #include <iostream>
 #include <cstdlib>
 #include <string>

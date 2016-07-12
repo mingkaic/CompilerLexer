@@ -3,7 +3,7 @@
 #include <ostream>
 #include <string>
 #include <cstdlib>
-#include "decafexpr-defs.h"
+#include "decafcomp-defs.h"
 
 int yylex(void);
 int yyerror(char *); 
@@ -44,7 +44,7 @@ llvm::Function *gen_main_def() {
   return TheFunction;
 }
 
-#include "decafexpr.cc"
+#include "decafcomp.cc"
 
 %}
 
