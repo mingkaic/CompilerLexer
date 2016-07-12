@@ -282,19 +282,6 @@ public:
 		llvm::GlobalVariable *GS = Builder.CreateGlobalString(
 			llvm::StringRef(data.c_str(), data.size()), "gstr");
 		return Builder.CreateConstGEP2_32(GS->getValueType(), GS, 0, 0, "cast");
-		/*
-		llvm::Value* len = llvm::ConstantInt::get(Context, llvm::APInt(32, data.size()+1));
-		llvm::AllocaInst* al = Builder.CreateAlloca(llvm::Type::getInt8Ty(Context), len, "");
-		cout << *((llvm::ConstantInt*) al->getArraySize())->getValue().getRawData() << "\n";
-			cout << *((llvm::ConstantInt*)al)->getValue().getRawData() << "\n";
-		//llvm::ConstantInt8Ptr* buffer = al;
-		for (char c : data) {
-			uint8_t v = c;
-			llvm::StoreInst* ad = Builder.CreateStore(llvm::ConstantInt::get(Context, llvm::APInt(8, v)), al);
-			
-			cout << *((llvm::ConstantInt*)ad)->getValue().getRawData() << "\n";
-		}
-		return al;*/
 	}
 	virtual TYPEs getType() { return V_STRING; }
 };

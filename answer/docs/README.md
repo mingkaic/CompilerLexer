@@ -1,8 +1,8 @@
-# BNFBusters Decafast
+# BNFBusters Decafexpr
 
-Implementation of Lexical Parser built on the Lexical Analyzer component for a compiler for the Decaf programming languaged defined on
+Implementation of Lexical Codegen built on the Lexical Parser and Analyzer component for a compiler for the Decaf programming languaged defined on
 http://anoopsarkar.github.io/compilers-class/decafspec.html
-Using Flex and Bison/YACC
+Using Flex, Bison/YACC, and LLVM
 
 ## Installation
 
@@ -10,16 +10,24 @@ Use the command
 
 	$make
 
-To generate the executable decafast
+To generate the executable decafexpr
 
 ## Usage
 
 Run the executable and manually enter Decaf programs
 OR 
-Pipe Decaf files into the lexer application
+Pipe Decaf files into the decafexpr application
 
 ## History
 
+12 Jul, 2016
+100/100																							mingkaic authored
+ 11 Jul, 2016
+95/100																							mingkaic authored
+84/100																							mingkaic authored
+48/100																							mingkaic authored
+25 Jun, 2016 
+lexer+parser+llvm merged																		mingkaic authored
 18 Jun, 2016
 200/200																							mingkaic authored
 132/132																							mingkaic authored
@@ -59,6 +67,7 @@ Ming Kai Chen
 - edited outputs to match test format
 - defined some obvious error cases for the lexer analyzer
 - implemented decaf parser
+- implemented decaf codegen
 
 Nav Kalra
 
