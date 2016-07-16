@@ -1,0 +1,13 @@
+LogError: Unknown function referenced
+; ModuleID = 'QuickSort'
+
+define void @displayList(i32 %start, i32 %len) {
+entry:
+  %j = alloca i32
+  %len2 = alloca i32
+  %start1 = alloca i32
+  store i32 %start, i32* %start1
+  store i32 %len, i32* %len2
+  store i32 0, i32* %j
+  ret void
+}

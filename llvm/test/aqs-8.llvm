@@ -1,0 +1,14 @@
+LogError: Unknown function referenced
+LogError: Unknown function referenced
+LogError: Unknown function referenced
+LogError: Unknown function referenced
+LogError: Unknown function referenced
+; ModuleID = 'QuickSort'
+
+define void @main() {
+entry:
+  %size = alloca i32
+  store i32 0, i32* %size
+  store i32 100, i32* %size
+  ret i32 0
+}

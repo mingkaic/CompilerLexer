@@ -1,0 +1,8 @@
+syntax error
+; ModuleID = 'Test'
+
+declare void @initList(i32 %size)
+
+declare void @displayList(i32 %start, i32 %len)
+
+declare void @cr()

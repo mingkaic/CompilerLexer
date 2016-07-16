@@ -1,0 +1,23 @@
+LogError: Unknown function referenced
+; ModuleID = 'QuickSort'
+
+define i32 @partition(i32 %left, i32 %right, i32 %pivot) {
+entry:
+  %rightPtr = alloca i32
+  %leftPtr = alloca i32
+  %pivot3 = alloca i32
+  %right2 = alloca i32
+  %left1 = alloca i32
+  store i32 %left, i32* %left1
+  store i32 %right, i32* %right2
+  store i32 %pivot, i32* %pivot3
+  store i32 0, i32* %leftPtr
+  store i32 0, i32* %rightPtr
+  %left4 = load i32, i32* %left1
+  %subtmp = sub i32 %left4, 1
+  store i32 %subtmp, i32* %leftPtr
+  %right5 = load i32, i32* %right2
+  store i32 %right5, i32* %rightPtr
+  %leftPtr6 = load i32, i32* %leftPtr
+  ret i32 %leftPtr6
+}

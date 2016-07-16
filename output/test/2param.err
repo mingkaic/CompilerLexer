@@ -1,0 +1,35 @@
+output prefix: llvm/test/2param
+llvmas: /Users/cmk/llvm/bin/llvm-as
+llc: /Users/cmk/llvm/bin/llc
+cc: gcc
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
+; ModuleID = 'C'
+
+define i32 @main() {
+entry:
+  %calltmp = call i32 @foo(i32 1, i32 2)
+  ret i32 0
+}
+
+define i32 @foo(i32 %x, i32 %y) {
+entry:
+  %y2 = alloca i32
+  %x1 = alloca i32
+  store i32 %x, i32* %x1
+  store i32 %y, i32* %y2
+  store i32 1, i32* %x1
+  store i32 1, i32* %y2
+  %x3 = load i32, i32* %x1
+  call void @print_int(i32 %x3)
+  %y4 = load i32, i32* %y2
+  call void @print_int(i32 %y4)
+  ret i32 0
+}
+
+declare void @print_int(i32)
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/2param.llvm" -o "llvm/test/2param.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "llvm/test/2param.llvm.bc" -o "llvm/test/2param.llvm.s" ... ok
+linking:gcc -o "llvm/test/2param.llvm.exec" "llvm/test/2param.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... ok
+running:llvm/test/2param.llvm.exec ... ok

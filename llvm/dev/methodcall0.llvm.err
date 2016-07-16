@@ -1,0 +1,7 @@
+LogError: Unknown function referenced
+; ModuleID = 'C'
+
+define void @f() {
+entry:
+  ret void
+}

@@ -1,0 +1,16 @@
+LogError: Unknown variable name
+LogError: Unknown variable name
+LogError: Unknown variable name
+LogError: Unknown variable name
+LogError: Unknown variable name
+; ModuleID = 'QuickSort'
+
+define void @main() {
+entry:
+  store i32 6, <null operand!>
+  store i32 6, <null operand!>
+  store i1 true, <null operand!>
+  store i32 0, <null operand!>
+  store i32 24, <null operand!>
+  ret i32 0
+}

@@ -6,10 +6,7 @@
 #include "decafcomp-defs.h"
 
 int yylex(void);
-int yyerror(char *); 
-
-// print AST?
-bool printAST = false;
+int yyerror(char *);
 
 using namespace std;
 
@@ -105,7 +102,7 @@ llvm::Function *gen_main_def() {
 %type <ast> extern_list decafpackage
 %type <ast> extern_param extern_type method_type decaf_type
 %type <ast> field_list method_list
-%type <ast> field_decl id_list constant
+%type <ast> multivar id_list constant
 %type <ast> param_list block var_list statement_list statement
 %type <ast> assign_list assign method_call method_arg_list method_arg
 %type <ast> expr and_level
@@ -119,16 +116,12 @@ llvm::Function *gen_main_def() {
 start: program
 
 program: extern_list decafpackage {
-        ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (PackageAST *)$2); 
-    	if (printAST) {
-    		cout << getString(prog) << endl;
-    	}
+        ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (PackageAST *)$2);
         try {
             prog->Codegen();
         } 
         catch (std::runtime_error &e) {
             cout << "semantic error: " << e.what() << endl;
-            //cout << prog->str() << endl; 
             exit(EXIT_FAILURE);
         }
         delete prog;
@@ -137,7 +130,7 @@ program: extern_list decafpackage {
 extern_list: /* empty */ { $$ = new decafStmtList(); }
     | T_EXTERN T_FUNC T_ID T_LPAREN T_RPAREN method_type T_SEMICOLON extern_list {
         string* id = $3;
-        ExternAST* ext = new ExternAST(*id, (typeSymAST*) $6, NULL);
+        ExternAST* ext = new ExternAST(*id, (TypeSym*) $6, NULL);
         delete id;
         decafStmtList* l = (decafStmtList*) $8;
         l->push_front(ext);
@@ -146,7 +139,7 @@ extern_list: /* empty */ { $$ = new decafStmtList(); }
     | T_EXTERN T_FUNC T_ID T_LPAREN extern_param T_RPAREN method_type T_SEMICOLON extern_list {
         string* id = $3;
         decafStmtList* ex_list = (decafStmtList*) $5;
-        ExternAST* ext = new ExternAST(*id, (typeSymAST*) $7, ex_list);
+        ExternAST* ext = new ExternAST(*id, (TypeSym*) $7, ex_list);
         delete id;
         decafStmtList* l = (decafStmtList*) $9;
         l->push_front(ext);
@@ -167,16 +160,16 @@ extern_param: extern_type T_COMMA extern_param { // one to many
     }
     ;
 
-extern_type: T_STRINGTYPE { $$ = new vardefAST(V_STRING); }
-    | decaf_type { $$ = new vardefAST((typeSymAST*) $1); }
+extern_type: T_STRINGTYPE { $$ = new VarDecl(V_STRING); }
+    | decaf_type { $$ = new VarDecl((TypeSym*) $1); }
     ;
 
-method_type: T_VOID { $$ = new typeSymAST(V_VOID); }
+method_type: T_VOID { $$ = new TypeSym(V_VOID); }
     | decaf_type { $$ = $1; }
     ;
 
-decaf_type: T_INTTYPE { $$ = new typeSymAST(V_INT); }
-    | T_BOOLTYPE { $$ = new typeSymAST(V_BOOL); }
+decaf_type: T_INTTYPE { $$ = new TypeSym(V_INT); }
+    | T_BOOLTYPE { $$ = new TypeSym(V_BOOL); }
     ;
 
 decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB {
@@ -188,97 +181,115 @@ decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB {
     ;
 
 field_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
-    | field_decl field_list {
-        decafStmtList* fields = (decafStmtList*) $2;
-        fields->push_front($1);
-        $$ = fields;
-    } 
+    | field_list multivar {
+        decafStmtList* globals = (decafStmtList*) $1;
+        decafStmtList* mlist = (decafStmtList*) $2;
+
+        for (list<decafAST*>::iterator vit = mlist->begin(); 
+            vit != mlist->end(); vit++) {
+            VarDecl* var = (VarDecl*) *vit;
+            globals->push_back(new GlobalVar(var));
+        }
+        $$ = globals;
+    }
+    | field_list T_VAR id_list T_LSB T_INTCONSTANT T_RSB decaf_type T_SEMICOLON { 
+        decafStmtList* globals = (decafStmtList*) $1;
+        decafStmtList* mlist = (decafStmtList*) $3;
+        TypeSym* var_type = (TypeSym*) $7;
+
+        for (list<decafAST*>::iterator vit = mlist->begin(); 
+            vit != mlist->end(); vit++) {
+            VarDecl* var = (VarDecl*) *vit;
+            var->Type = new TypeSym(*var_type);
+            NumLit* arrsize = new NumLit(*$5);
+            globals->push_back(new GlobalVar(var, arrsize));
+        }
+        delete var_type;
+        delete $5;
+        $$ = globals;
+    }
+    | field_list T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON {
+        $$ = new GlobalVar(*$3, (TypeSym*) $4, $6);
+        delete $3;
+    }
     ;
 
-field_decl: T_VAR id_list decaf_type T_SEMICOLON {
-        decafStmtList* res = new decafStmtList();
-        temporaryAST* ids = (temporaryAST*) $2;
-        typeSymAST* t = (typeSymAST*) $3;
-        for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDeclAST(**it, new typeSymAST(*t)));
+var_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
+    | var_list multivar {
+        decafStmtList* vars = (decafStmtList*) $1;
+        vars->push_back($2);
+        $$ = vars;
+    }
+    ;
+
+multivar: T_VAR id_list decaf_type T_SEMICOLON {
+        decafStmtList* var_list = (decafStmtList*) $2;
+        TypeSym* var_type = (TypeSym*) $3;
+
+        for (list<decafAST*>::iterator vit = var_list->begin(); 
+            vit != var_list->end(); vit++) {
+            VarDecl* var = (VarDecl*) *vit;
+            var->Type = new TypeSym(*var_type);
         }
-        delete t;
-        delete ids;
-        $$ = res;
-    }
-    | T_VAR T_ID decaf_type T_SEMICOLON {
-        // for some reason, bison has problems with single ID id_list followed by decaf_type
-        $$ = new FieldDeclAST(*$2, (typeSymAST*) $3);
-    }
-    | T_VAR id_list T_LSB T_INTCONSTANT T_RSB decaf_type T_SEMICOLON { 
-        decafStmtList* res = new decafStmtList();
-        temporaryAST* ids = (temporaryAST*) $2;
-        typeSymAST* t = (typeSymAST*) $6;
-        for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new FieldDeclAST(**it, new typeSymAST(*t), *$4));
-        }
-        delete t;
-        delete ids;
-        $$ = res;
-    }
-    | T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON {
-        $$ = new FieldDeclAST(*$2, (typeSymAST*) $3, $5);
-        delete $2;
+        delete var_type;
+        $$ = var_list;
     }
     ;
 
 id_list: T_ID { // one or more
-        temporaryAST* res = new temporaryAST(); 
-        res->types.push_back($1);
-        $$ = res;
+        decafStmtList* v_list = new decafStmtList();
+        VarDecl* var = new VarDecl(*$1);
+        v_list->push_back(var);
+        $$ = v_list;
     }
     | id_list T_COMMA T_ID {
-        temporaryAST* res = (temporaryAST*) $1;
-        res->types.push_back($3);
-        $$ = res;
+        decafStmtList* v_list = (decafStmtList*) $1;
+        VarDecl* var = new VarDecl(*$3);
+        v_list->push_back(var);
+        $$ = v_list;
     }
     ;
 
-constant: T_INTCONSTANT { $$ = new numericAST(*$1); delete $1; }
+constant: T_INTCONSTANT { $$ = new NumLit(*$1); delete $1; }
     | T_CHARCONSTANT {
         try {
-            string strrep = convertescape(*$1);
+            string strrep = ConvertEsc(*$1);
             int val = strrep[1];
-            $$ = new numericAST(val); 
+            $$ = new NumLit(val); 
             delete $1;
         } catch (string e) {
             yyerror(e.c_str());
             return -1;
         }
     }
-    | T_TRUE { $$ = new booleanAST(true); }
-    | T_FALSE { $$ = new booleanAST(false); }
+    | T_TRUE { $$ = new BoolLit(true); }
+    | T_FALSE { $$ = new BoolLit(false); }
     ;
 
 method_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
     | T_FUNC T_ID T_LPAREN T_RPAREN method_type block method_list {
         decafStmtList* l = (decafStmtList*) $7;
-        blockAST* bloc = (blockAST*) $6;
-        l->push_front(new MethodDeclAST(*$2, (typeSymAST*) $5, NULL, bloc));
+        BlockAST* bloc = (BlockAST*) $6;
+        l->push_front(new MethodDecl(*$2, (TypeSym*) $5, NULL, bloc));
         $$ = l;
     }
     | T_FUNC T_ID T_LPAREN param_list T_RPAREN method_type block method_list {
         decafStmtList* l = (decafStmtList*) $8;
-        blockAST* bloc = (blockAST*) $7;
+        BlockAST* bloc = (BlockAST*) $7;
         decafStmtList* params = (decafStmtList*) $4;
-        l->push_front(new MethodDeclAST(*$2, (typeSymAST*) $6, params, bloc));
+        l->push_front(new MethodDecl(*$2, (TypeSym*) $6, params, bloc));
         $$ = l;
     }
     ;
 
 param_list: T_ID decaf_type { // one or more
         decafStmtList* res = new decafStmtList();
-        res->push_back(new vardefAST(*$1, (typeSymAST*) $2));
+        res->push_back(new VarDecl(*$1, (TypeSym*) $2));
         $$ = res;
     } 
     | T_ID decaf_type T_COMMA param_list {
         decafStmtList* res = (decafStmtList*) $4;
-        res->push_front(new vardefAST(*$1, (typeSymAST*) $2));
+        res->push_front(new VarDecl(*$1, (TypeSym*) $2));
         $$ = res;
     } 
     ;
@@ -286,20 +297,7 @@ param_list: T_ID decaf_type { // one or more
 block: T_LCB var_list statement_list T_RCB {
         decafStmtList* vars = (decafStmtList*) $2;
         decafStmtList* stats = (decafStmtList*) $3;
-        $$ = new blockAST(vars, stats);
-    }
-    ;
-
-var_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
-    | var_list T_VAR id_list decaf_type T_SEMICOLON {
-        decafStmtList* res = (decafStmtList*) $1;
-        temporaryAST* ids = (temporaryAST*) $3;
-        typeSymAST* t = (typeSymAST*) $4;
-        for (list<string*>::iterator it = ids->types.begin(); it != ids->types.end(); it++) {
-            res->push_back(new vardefAST(**it, new typeSymAST(*t)));
-        }
-        delete t;
-        $$ = res;
+        $$ = new BlockAST(vars, stats);
     }
     ;
 
@@ -315,28 +313,28 @@ statement: block { $$ = $1; }
     | assign T_SEMICOLON { $$ = $1;}
     | method_call T_SEMICOLON { $$ = $1; }
     | T_IF T_LPAREN expr T_RPAREN block { 
-        blockAST* ifBloc = (blockAST*) $5;
+        BlockAST* ifBloc = (BlockAST*) $5;
         $$ = new IfElseAST($3, ifBloc, NULL);
     }
     | T_IF T_LPAREN expr T_RPAREN block T_ELSE block {
-        blockAST* ifBloc = (blockAST*) $5;
-        blockAST* elseBloc = (blockAST*) $7;
+        BlockAST* ifBloc = (BlockAST*) $5;
+        BlockAST* elseBloc = (BlockAST*) $7;
         $$ = new IfElseAST($3, ifBloc, elseBloc);}
     | T_WHILE T_LPAREN expr T_RPAREN block {
-        blockAST* bloc = (blockAST*) $5;
+        BlockAST* bloc = (BlockAST*) $5;
         $$ = new WhileStmtAST($3, bloc);
     }
     | T_FOR T_LPAREN assign_list T_SEMICOLON expr T_SEMICOLON assign_list T_RPAREN block {
         decafStmtList* init = (decafStmtList*) $3;
         decafStmtList* iter = (decafStmtList*) $7;
-        blockAST* bloc = (blockAST*) $9;
+        BlockAST* bloc = (BlockAST*) $9;
         $$ = new ForStmtAST(init, $5, iter, bloc);
     }
-    | T_RETURN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
-    | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST(NULL); }
-    | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnStmtAST($3); }
-    | T_BREAK T_SEMICOLON { $$ = new breakAST(); }
-    | T_CONTINUE T_SEMICOLON { $$ = new continueAST(); }
+    | T_RETURN T_SEMICOLON { $$ = new ReturnAST(NULL); }
+    | T_RETURN T_LPAREN T_RPAREN T_SEMICOLON { $$ = new ReturnAST(NULL); }
+    | T_RETURN T_LPAREN expr T_RPAREN T_SEMICOLON { $$ = new ReturnAST($3); }
+    | T_BREAK T_SEMICOLON { $$ = new BreakAST(); }
+    | T_CONTINUE T_SEMICOLON { $$ = new ContAST(); }
     ;
 
 assign_list: assign { // one or more
@@ -351,14 +349,14 @@ assign_list: assign { // one or more
     }
     ;
 
-assign: T_ID T_LSB expr T_RSB T_ASSIGN expr { $$ = new assignAST(*$1, $3, $6); }
-    | T_ID T_ASSIGN expr { $$ = new assignAST(*$1, $3); }
+assign: T_ID T_LSB expr T_RSB T_ASSIGN expr { $$ = new AssignAST(*$1, $3, $6); }
+    | T_ID T_ASSIGN expr { $$ = new AssignAST(*$1, $3); }
     ;
 
-method_call: T_ID T_LPAREN T_RPAREN { $$ = new methodCallAST(*$1, NULL); }
+method_call: T_ID T_LPAREN T_RPAREN { $$ = new MethodCall(*$1, NULL); }
     | T_ID T_LPAREN method_arg_list T_RPAREN {
         decafStmtList* args = (decafStmtList*) $3; 
-        $$ = new methodCallAST(*$1, args);
+        $$ = new MethodCall(*$1, args);
     }
     ;
 
@@ -377,7 +375,7 @@ method_arg_list: method_arg { // one or more
 method_arg: expr { $$ = $1; } 
     | T_STRINGCONSTANT { 
         try {
-            $$ = new stringAST(*$1);
+            $$ = new StringLit(*$1);
         } catch (string e) {
             yyerror(e.c_str());
             return -1;
@@ -387,56 +385,56 @@ method_arg: expr { $$ = $1; }
 
 expr: and_level { $$ = $1; }
     | expr T_OR and_level {
-        $$ = new opAST($1, new opSymAST(OR), $3); 
+        $$ = new Operation($1, new OpSym(OR), $3); 
     }
     ;
 
 and_level: comp_level { $$ = $1; }
     | and_level T_AND comp_level {
-        $$ = new opAST($1, new opSymAST(AND), $3); 
+        $$ = new Operation($1, new OpSym(AND), $3); 
     }
     ;
 
 comp_level: plus_level { $$ = $1; }
-    | comp_level comp_op plus_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
+    | comp_level comp_op plus_level { $$ = new Operation($1, (OpSym*) $2, $3); }
     ;
 
 plus_level: mult_level { $$ = $1; }
-    | plus_level plus_op mult_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
+    | plus_level plus_op mult_level { $$ = new Operation($1, (OpSym*) $2, $3); }
     ;
 
 mult_level: not_level { $$ = $1; }
-    | mult_level mult_op not_level { $$ = new opAST($1, (opSymAST*) $2, $3); }
+    | mult_level mult_op not_level { $$ = new Operation($1, (OpSym*) $2, $3); }
     ;
 
 not_level: to_endpoint { $$ = $1; }
-    | T_NOT not_level { $$ = new opAST($2, new opSymAST(NOT)); }
+    | T_NOT not_level { $$ = new Operation($2, new OpSym(NOT)); }
     ;
 
-to_endpoint: T_ID { $$ = new rvalueAST(*$1); delete $1; }
-    | T_ID T_LSB expr T_RSB { $$ = new rvalueAST(*$1, $3); delete $1; }
+to_endpoint: T_ID { $$ = new VarCall(*$1); delete $1; }
+    | T_ID T_LSB expr T_RSB { $$ = new VarCall(*$1, $3); delete $1; }
     | method_call { $$ = $1; }
     | constant { $$ = $1; }
     | T_LPAREN expr T_RPAREN { $$ = $2; }
-    | T_MINUS to_endpoint { $$ = new opAST($2, new opSymAST(NEG)); }
+    | T_MINUS to_endpoint { $$ = new Operation($2, new OpSym(NEG)); }
     ;
 
-comp_op: T_EQ { $$ = new opSymAST(EQ); }
-    | T_NEQ { $$ = new opSymAST(NEQ); }
-    | T_LT { $$ = new opSymAST(LT); }
-    | T_LEQ { $$ = new opSymAST(LE); }
-    | T_GT { $$ = new opSymAST(GT); }
-    | T_GEQ { $$ = new opSymAST(GE); }
+comp_op: T_EQ { $$ = new OpSym(EQ); }
+    | T_NEQ { $$ = new OpSym(NEQ); }
+    | T_LT { $$ = new OpSym(LT); }
+    | T_LEQ { $$ = new OpSym(LE); }
+    | T_GT { $$ = new OpSym(GT); }
+    | T_GEQ { $$ = new OpSym(GE); }
 
-plus_op: T_PLUS { $$ = new opSymAST(ADD); }
-    | T_MINUS { $$ = new opSymAST(MINUS); }
+plus_op: T_PLUS { $$ = new OpSym(ADD); }
+    | T_MINUS { $$ = new OpSym(MINUS); }
     ;
 
-mult_op: T_MULT { $$ = new opSymAST(MULT); }
-    | T_DIV { $$ = new opSymAST(DIV); }
-    | T_LEFTSHIFT { $$ = new opSymAST(LSHI); }
-    | T_RIGHTSHIFT { $$ = new opSymAST(RSHI); }
-    | T_MOD { $$ = new opSymAST(MOD); }
+mult_op: T_MULT { $$ = new OpSym(MULT); }
+    | T_DIV { $$ = new OpSym(DIV); }
+    | T_LEFTSHIFT { $$ = new OpSym(LSHI); }
+    | T_RIGHTSHIFT { $$ = new OpSym(RSHI); }
+    | T_MOD { $$ = new OpSym(MOD); }
     ;
 
 %%

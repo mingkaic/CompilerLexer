@@ -1,0 +1,7 @@
+LogError: Unknown function referenced
+; ModuleID = 'QuickSort'
+
+define void @cr() {
+entry:
+  ret void
+}

@@ -1,0 +1,2 @@
+LogError: Unknown variable name
+Assertion failed: (Val && "isa<> used on a null pointer"), function doit, file /Users/cmk/llvm/include/llvm/Support/Casting.h, line 95.

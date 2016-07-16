@@ -40,8 +40,9 @@ public:
 		list<scope_layer* >::iterator it;
 		for (it = content.begin(); 
 			it != content.end(); it++) {
-			if ((*it)->find(name) != (*it)->end())
+			if ((*it)->find(name) != (*it)->end()) {
 				return (**it)[name].mem;
+			}
 		}
 		return (*content.back())[name].mem;
 	}

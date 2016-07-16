@@ -1,0 +1,8 @@
+output prefix: llvm/test/multi-list
+llvmas: /Users/cmk/llvm/bin/llvm-as
+llc: /Users/cmk/llvm/bin/llc
+cc: gcc
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (-11)
+codegen failed
