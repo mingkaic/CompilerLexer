@@ -13,9 +13,19 @@ entry:
   %left1 = alloca i32
   store i32 %left, i32* %left1
   store i32 %right, i32* %right2
+  %right3 = load i32, i32* %right2
+  %left4 = load i32, i32* %left1
+  %subtmp = sub i32 %right3, %left4
+  %letmp = icmp ule i32 %subtmp, 0
+  br i1 %letmp, label %then, label %else
+
+then:                                             ; preds = %entry
   ret void
 }
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/aqs-7.llvm" -o "llvm/test/aqs-7.llvm.bc" ... ok
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/aqs-7.llvm" -o "llvm/test/aqs-7.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: llvm/test/aqs-7.llvm:13:36: error: use of undefined value '%else'
+  br i1 %letmp, label %then, label %else
+                                   ^
 converting to native code:/Users/cmk/llvm/bin/llc "llvm/test/aqs-7.llvm.bc" -o "llvm/test/aqs-7.llvm.s" ... ok
 linking:gcc -o "llvm/test/aqs-7.llvm.exec" "llvm/test/aqs-7.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... failed (1)
 Undefined symbols for architecture x86_64:

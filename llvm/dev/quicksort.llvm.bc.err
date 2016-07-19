@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/quicksort.llvm:46:7: error: value doesn't match function result type 'void'
+  ret i32 0
+      ^

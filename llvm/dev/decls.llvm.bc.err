@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/decls.llvm:10:12: error: expected instruction opcode
+  ret void zeroinitializer
+           ^

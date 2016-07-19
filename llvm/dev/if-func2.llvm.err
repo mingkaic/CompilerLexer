@@ -1,11 +1,1 @@
-; ModuleID = 'C'
-
-define void @main() {
-entry:
-  ret void
-}
-
-define i32 @f() {
-entry:
-  ret i32 1
-}
+LogError: Unknown variable name

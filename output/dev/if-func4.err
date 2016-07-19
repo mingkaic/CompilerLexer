@@ -4,19 +4,6 @@ llc: /Users/cmk/llvm/bin/llc
 cc: gcc
 codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
 stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
-; ModuleID = 'C'
-
-define void @main() {
-entry:
-  ret void
-}
-
-define i1 @f() {
-entry:
-  ret i1 true
-}
-assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/dev/if-func4.llvm" -o "llvm/dev/if-func4.llvm.bc" ... ok
-converting to native code:/Users/cmk/llvm/bin/llc "llvm/dev/if-func4.llvm.bc" -o "llvm/dev/if-func4.llvm.s" ... ok
-linking:gcc -o "llvm/dev/if-func4.llvm.exec" "llvm/dev/if-func4.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... ok
-running:llvm/dev/if-func4.llvm.exec ... failed (96)
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (-11)
+LogError: Unknown variable name
+codegen failed

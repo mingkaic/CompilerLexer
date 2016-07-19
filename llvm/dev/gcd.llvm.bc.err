@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/gcd.llvm:38:3: error: instruction forward referenced with type 'i32*'
+  %a = load i32, i32* %a
+  ^

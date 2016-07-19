@@ -359,10 +359,7 @@ public:
 			delete else_block;
 		}
 	}
-	llvm::Value* Codegen() {
-		llvm::Value *val = NULL;
-		return val;
-	}
+	llvm::Value* Codegen();
 };
 
 class WhileStmtAST : public decafAST {

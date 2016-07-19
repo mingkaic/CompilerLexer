@@ -3,7 +3,6 @@ static symbtbl NamedValues;
 static std::map<std::string, llvm::Function*> FunctionProtos;
 
 static llvm::Value *LogError(const char *Str) {
-	cout << "-1";
 	fprintf(stderr, "LogError: %s\n", Str);
 	return NULL;
 }
@@ -53,31 +52,30 @@ llvm::Value* VarDecl::Codegen() {
 }
 
 llvm::Value* GlobalVar::Codegen() {
-	llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
-
 	// Create an alloca for the variable in the entry block.
 	if (NamedValues[var->getName()]) {
 		LogError("Redefining variable in same scope");
 	} else {
 		// allocate memory
-		llvm::Value* size = NULL;
+		llvm::Type* vType = var->Tgen();
 		if (arrSize) {
-			size = arrSize->Codegen();	
+			size_t size = *((llvm::ConstantInt*)arrSize->Codegen())->getValue().getRawData();
+			vType = llvm::ArrayType::get(vType, size);
 		}
-		llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(
-			var->Type->Tgen(), TheFunction, var->getName(), size);
 
+		llvm::Constant* init = NULL;
 		if (init_val) {
-			Builder.CreateStore(init_val->Codegen(), Alloca);
+			init = (llvm::Constant*) init_val->Codegen();
 		} else {
-			llvm::Type* vType = var->Tgen();
-			Builder.CreateStore(
-				llvm::Constant::getNullValue(vType), Alloca);
+			init = llvm::Constant::getNullValue(vType);
 		}
+		llvm::GlobalVariable *gvar = new llvm::GlobalVariable(
+			vType, false, llvm::GlobalValue::InternalLinkage, 
+			init, var->getName().c_str());
 
-		NamedValues[var->getName()] = Alloca;
+		NamedValues[var->getName()] = (llvm::AllocaInst*) gvar;
 		NamedValues.setType(var->getName(), var->getType());
-		return Alloca;
+		return gvar;
 	}
 	return NULL;
 }
@@ -109,7 +107,9 @@ llvm::Value* VarCall::Codegen() {
 	    LogError("Unknown variable name");
 
 	llvm::Value* var_res = NULL;
-	if (index) {
+	if (NamedValues.scope(id)) {
+		var_res = ((llvm::GlobalVariable*) val)->getInitializer();
+	} else if (index) {
 		llvm::Value* idx = index->Codegen();
 		var_res = Builder.CreateExtractElement(val, idx);
 	} else {
@@ -278,11 +278,13 @@ llvm::Value* AssignAST::Codegen() {
 		LogError("Unknown variable name");
 	}
 
-	if (arridx) {
+	if (NamedValues.scope(idname)) {
+		Builder.CreateStore(rval, lval);
+	} else if (arridx) {
 		llvm::Value *idx = arridx->Codegen();
 		Builder.CreateInsertElement(lval, rval, idx);
 	} else {
-		Builder.CreateStore(rval, lval);
+		((llvm::GlobalVariable*) lval)->setInitializer((llvm::Constant*) rval);
 	}
 
 	return rval;
@@ -306,16 +308,18 @@ llvm::Value* Operation::Codegen() {
 				break;
 		}
 	} else {
+		if (op->getOP() == AND) {
+			return Builder.CreateAnd(L, rvalue->Codegen(), "andtmp");
+		} else if (op->getOP() == OR) {
+			return Builder.CreateOr(L, rvalue->Codegen(), "ortmp");
+		}
+
 		llvm::Value *R = rvalue->Codegen();
 		if (!L || !R) {
 			return NULL;
 		}
 
 		switch (op->getOP()) {
-			case AND:
-				return Builder.CreateAnd(L, R, "andtmp");
-			case OR:
-				return Builder.CreateOr(L, R, "ortmp");
 			case EQ:
 				return Builder.CreateICmpEQ(L, R, "eqtmp");
 			case NEQ:
@@ -347,5 +351,42 @@ llvm::Value* Operation::Codegen() {
 		}
 	}
 	return LogError("invalid binary operator");
+}
+
+llvm::Value* IfElseAST::Codegen() {
+	llvm::Value *cond = condition->Codegen();
+	if (!cond)
+		return NULL;
+
+	/*cond = Builder.CreateFCmpONE(cond, llvm::ConstantFP::get(
+		Context, llvm::APFloat(0.0)), "ifcond");*/
+	llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
+	llvm::BasicBlock *ThenBB = llvm::BasicBlock::Create(Context, "then", TheFunction);
+	llvm::BasicBlock *ElseBB = llvm::BasicBlock::Create(Context, "else");
+	llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(Context, "ifcont");
+
+	Builder.CreateCondBr(cond, ThenBB, ElseBB);
+	// Then block
+	Builder.SetInsertPoint(ThenBB);
+	llvm::Value *ThenV = if_block->Codegen();
+	if (!ThenV)
+		return nullptr;
+	Builder.CreateBr(MergeBB);
+	ThenBB = Builder.GetInsertBlock();
+	// Else block
+	TheFunction->getBasicBlockList().push_back(ElseBB);
+	Builder.SetInsertPoint(ElseBB);
+	llvm::Value *ElseV = else_block->Codegen();
+	if (!ElseV)
+		return nullptr;
+	Builder.CreateBr(MergeBB);
+	ElseBB = Builder.GetInsertBlock();
+	// Continued block
+	TheFunction->getBasicBlockList().push_back(MergeBB);
+	Builder.SetInsertPoint(MergeBB);
+	llvm::PHINode *PN = Builder.CreatePHI(llvm::Type::getInt32Ty(Context), 2, "iftmp");
+	PN->addIncoming(ThenV, ThenBB);
+	PN->addIncoming(ElseV, ElseBB);
+	return PN;
 }
 

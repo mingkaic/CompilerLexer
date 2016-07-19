@@ -1,0 +1,11 @@
+; ModuleID = 'C'
+
+define void @f() {
+entry:
+  %i = alloca i32
+  %x = alloca i32
+  store i32 0, i32* %x
+  store i32 0, i32* %i
+  store i32 100, i32* %size
+  ret void zeroinitializer
+}

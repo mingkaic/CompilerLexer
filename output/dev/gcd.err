@@ -4,5 +4,75 @@ llc: /Users/cmk/llvm/bin/llc
 cc: gcc
 codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
 stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (-11)
-codegen failed
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
+; ModuleID = 'GreatestCommonDivisor'
+
+define i32 @gcd(i32 %a, i32 %b) {
+entry:
+  %b2 = alloca i32
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %b, i32* %b2
+  %b3 = load i32, i32* %b2
+  %eqtmp = icmp eq i32 %b3, 0
+  br i1 %eqtmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %a4 = load i32, i32* %a1
+  br label %ifcont
+
+else:                                             ; preds = %entry
+  %b5 = load i32, i32* %b2
+  %a6 = load i32, i32* %a1
+  %b7 = load i32, i32* %b2
+  %modtmp = srem i32 %a6, %b7
+  %calltmp = call i32 @gcd(i32 %b5, i32 %modtmp)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ %a4, %then ], [ %calltmp, %else ]
+  ret i32 %iftmp
+}
+
+define i32 @main() {
+entry:
+  %z = alloca i32
+  %y = alloca i32
+  %x = alloca i32
+  store i32 0, i32* %x
+  store i32 0, i32* %y
+  store i32 0, i32* %z
+  %a = load i32, i32* %a
+  store i32 %a, i32* %x
+  %b = load i32, i32* %b
+  store i32 %b, i32* %y
+  %x1 = load i32, i32* %x
+  %y2 = load i32, i32* %y
+  %calltmp = call i32 @gcd(i32 %x1, i32 %y2)
+  store i32 %calltmp, i32* %z
+  %z3 = load i32, i32* %z
+  call void @print_int(i32 %z3)
+  ret i32 0
+}
+
+declare void @print_int(i32)
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/dev/gcd.llvm" -o "llvm/dev/gcd.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/gcd.llvm:38:3: error: instruction forward referenced with type 'i32*'
+  %a = load i32, i32* %a
+  ^
+converting to native code:/Users/cmk/llvm/bin/llc "llvm/dev/gcd.llvm.bc" -o "llvm/dev/gcd.llvm.s" ... failed (1)
+/Users/cmk/llvm/bin/llc: llvm/dev/gcd.llvm.bc: error: Could not open input file: No such file or directory
+linking:gcc -o "llvm/dev/gcd.llvm.exec" "llvm/dev/gcd.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... failed (1)
+clang: error: no such file or directory: 'llvm/dev/gcd.llvm.s'
+running:llvm/dev/gcd.llvm.exec ...Traceback (most recent call last):
+  File "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/llvm-run", line 172, in <module>
+    result &= run("running", "%s.llvm.exec" % (out_prefix), ".run", None, out_prefix)
+  File "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/llvm-run", line 90, in run
+    retval = subprocess.call(shlex.split(cmd), stdin=infile, stdout=outoutfile, stderr=outerrfile)
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 522, in call
+    return Popen(*popenargs, **kwargs).wait()
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 710, in __init__
+    errread, errwrite)
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 1335, in _execute_child
+    raise child_exception
+OSError: [Errno 2] No such file or directory

@@ -82,7 +82,16 @@ public:
 		delete content.front();
 		content.pop_front();
 	}
-	int curscope() {
-		return content.size();
+	int scope(string name) {
+		int layer = 0;
+		size_t top = content.size();
+		list<scope_layer* >::iterator it;
+		for (it = content.begin(); 
+			it != content.end(); it++) {
+			if ((*it)->find(name) != (*it)->end()) {
+				return layer-top;
+			}
+		}
+		return -1;
 	}
 };

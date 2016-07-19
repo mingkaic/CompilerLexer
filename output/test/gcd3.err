@@ -4,5 +4,50 @@ llc: /Users/cmk/llvm/bin/llc
 cc: gcc
 codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
 stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (-11)
-codegen failed
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
+; ModuleID = 'GreatestCommonDivisor'
+
+define i32 @gcd(i32 %a, i32 %b) {
+entry:
+  %b2 = alloca i32
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  store i32 %b, i32* %b2
+  %b3 = load i32, i32* %b2
+  %eqtmp = icmp eq i32 %b3, 0
+  br i1 %eqtmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %a4 = load i32, i32* %a1
+  br label %ifcont
+
+else:                                             ; preds = %entry
+  %b5 = load i32, i32* %b2
+  %a6 = load i32, i32* %a1
+  %b7 = load i32, i32* %b2
+  %modtmp = srem i32 %a6, %b7
+  %calltmp = call i32 @gcd(i32 %b5, i32 %modtmp)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi i32 [ %a4, %then ], [ %calltmp, %else ]
+  ret i32 %iftmp
+}
+
+define i32 @main() {
+entry:
+  %calltmp = call i32 @read_int()
+  %calltmp1 = call i32 @read_int()
+  %calltmp2 = call i32 @gcd(i32 %calltmp, i32 %calltmp1)
+  call void @print_int(i32 %calltmp2)
+  ret i32 0
+}
+
+declare void @print_int(i32)
+
+declare i32 @read_int()
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/gcd3.llvm" -o "llvm/test/gcd3.llvm.bc" ... ok
+converting to native code:/Users/cmk/llvm/bin/llc "llvm/test/gcd3.llvm.bc" -o "llvm/test/gcd3.llvm.s" ... ok
+linking:gcc -o "llvm/test/gcd3.llvm.exec" "llvm/test/gcd3.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... ok
+using input file: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/testcases/test/gcd3.in
+running:llvm/test/gcd3.llvm.exec ... ok

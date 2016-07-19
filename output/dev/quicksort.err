@@ -4,5 +4,139 @@ llc: /Users/cmk/llvm/bin/llc
 cc: gcc
 codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
 stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
-generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (-11)
-codegen failed
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
+; ModuleID = 'QuickSort'
+
+@gstr = private unnamed_addr constant [2 x i8] c"\0A\00"
+@gstr.1 = private unnamed_addr constant [7 x i8] c"List:\0A\00"
+@gstr.2 = private unnamed_addr constant [16 x i8] c"After sorting:\0A\00"
+
+define i32 @partition(i32 %left, i32 %right, i32 %pivot) {
+entry:
+  %rightPtr = alloca i32
+  %leftPtr = alloca i32
+  %pivot3 = alloca i32
+  %right2 = alloca i32
+  %left1 = alloca i32
+  store i32 %left, i32* %left1
+  store i32 %right, i32* %right2
+  store i32 %pivot, i32* %pivot3
+  store i32 0, i32* %leftPtr
+  store i32 0, i32* %rightPtr
+  %left4 = load i32, i32* %left1
+  %subtmp = sub i32 %left4, 1
+  store i32 %subtmp, i32* %leftPtr
+  %right5 = load i32, i32* %right2
+  store i32 %right5, i32* %rightPtr
+  %leftPtr6 = load i32, i32* %leftPtr
+  %right7 = load i32, i32* %right2
+  call void @swap(i32 %leftPtr6, i32 %right7)
+  %leftPtr8 = load i32, i32* %leftPtr
+  ret i32 %leftPtr8
+}
+
+define void @main() {
+entry:
+  %size = alloca i32
+  store i32 0, i32* %size
+  store i32 100, i32* %size
+  %size1 = load i32, i32* %size
+  call void @initList(i32 %size1)
+  %size2 = load i32, i32* %size
+  call void @displayList(i32 0, i32 %size2)
+  %size3 = load i32, i32* %size
+  %subtmp = sub i32 %size3, 1
+  call void @quickSort(i32 0, i32 %subtmp)
+  call void @print_string(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @gstr.2, i32 0, i32 0))
+  %size4 = load i32, i32* %size
+  call void @displayList(i32 0, i32 %size4)
+  ret i32 0
+}
+
+define void @quickSort(i32 %left, i32 %right) {
+entry:
+  %right2 = alloca i32
+  %left1 = alloca i32
+  store i32 %left, i32* %left1
+  store i32 %right, i32* %right2
+  %right3 = load i32, i32* %right2
+  %left4 = load i32, i32* %left1
+  %subtmp = sub i32 %right3, %left4
+  %letmp = icmp ule i32 %subtmp, 0
+  br i1 %letmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  ret void
+}
+
+define void @swap(i32 %leftPtr, i32 %rightPtr) {
+entry:
+  %temp = alloca i32
+  %rightPtr2 = alloca i32
+  %leftPtr1 = alloca i32
+  store i32 %leftPtr, i32* %leftPtr1
+  store i32 %rightPtr, i32* %rightPtr2
+  store i32 0, i32* %temp
+  %leftPtr3 = load i32, i32* %leftPtr1
+  %0 = extractelement i32* %list, i32 %leftPtr3
+  store i32 %0, i32* %temp
+  %rightPtr4 = load i32, i32* %rightPtr2
+  %1 = extractelement i32* %list, i32 %rightPtr4
+  %leftPtr5 = load i32, i32* %leftPtr1
+  %2 = insertelement i32* %list, i32 %1, i32 %leftPtr5
+  %temp6 = load i32, i32* %temp
+  %rightPtr7 = load i32, i32* %rightPtr2
+  %3 = insertelement i32* %list, i32 %temp6, i32 %rightPtr7
+  ret void zeroinitializer
+}
+
+define void @initList(i32 %size) {
+entry:
+  %i = alloca i32
+  %size1 = alloca i32
+  store i32 %size, i32* %size1
+  store i32 0, i32* %i
+  ret void
+}
+
+define void @displayList(i32 %start, i32 %len) {
+entry:
+  %j = alloca i32
+  %len2 = alloca i32
+  %start1 = alloca i32
+  store i32 %start, i32* %start1
+  store i32 %len, i32* %len2
+  store i32 0, i32* %j
+  call void @print_string(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @gstr.1, i32 0, i32 0))
+  ret void
+}
+
+define void @cr() {
+entry:
+  call void @print_string(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @gstr, i32 0, i32 0))
+  ret void
+}
+
+declare void @print_string(i8*)
+
+declare void @print_int(i32)
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/dev/quicksort.llvm" -o "llvm/dev/quicksort.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/quicksort.llvm:46:7: error: value doesn't match function result type 'void'
+  ret i32 0
+      ^
+converting to native code:/Users/cmk/llvm/bin/llc "llvm/dev/quicksort.llvm.bc" -o "llvm/dev/quicksort.llvm.s" ... failed (1)
+/Users/cmk/llvm/bin/llc: llvm/dev/quicksort.llvm.bc: error: Could not open input file: No such file or directory
+linking:gcc -o "llvm/dev/quicksort.llvm.exec" "llvm/dev/quicksort.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... failed (1)
+clang: error: no such file or directory: 'llvm/dev/quicksort.llvm.s'
+running:llvm/dev/quicksort.llvm.exec ...Traceback (most recent call last):
+  File "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/llvm-run", line 172, in <module>
+    result &= run("running", "%s.llvm.exec" % (out_prefix), ".run", None, out_prefix)
+  File "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/llvm-run", line 90, in run
+    retval = subprocess.call(shlex.split(cmd), stdin=infile, stdout=outoutfile, stderr=outerrfile)
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 522, in call
+    return Popen(*popenargs, **kwargs).wait()
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 710, in __init__
+    errread, errwrite)
+  File "/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py", line 1335, in _execute_child
+    raise child_exception
+OSError: [Errno 2] No such file or directory

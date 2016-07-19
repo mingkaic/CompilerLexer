@@ -181,6 +181,13 @@ decafpackage: T_PACKAGE T_ID T_LCB field_list method_list T_RCB {
     ;
 
 field_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
+    | field_list T_VAR T_ID decaf_type T_SEMICOLON {
+        decafStmtList* var_list = (decafStmtList*) $1;
+        VarDecl* var = new VarDecl(*$3);
+        var->Type = (TypeSym*) $4;
+        var_list->push_back(new GlobalVar(var));
+        $$ = var_list;
+    }
     | field_list multivar {
         decafStmtList* globals = (decafStmtList*) $1;
         decafStmtList* mlist = (decafStmtList*) $2;

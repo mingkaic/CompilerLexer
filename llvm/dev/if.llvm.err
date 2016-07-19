@@ -1,6 +1,1 @@
-; ModuleID = 'C'
-
-define void @f() {
-entry:
-  ret void
-}
+LogError: Unknown variable name
