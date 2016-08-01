@@ -12,5 +12,5 @@ entry:
   store i1 true, <null operand!>
   store i32 0, <null operand!>
   store i32 24, <null operand!>
-  ret i32 0
+  ret void
 }

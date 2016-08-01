@@ -1,4 +1,3 @@
-
 static symbtbl NamedValues;
 static std::map<std::string, llvm::Function*> FunctionProtos;
 
@@ -56,26 +55,29 @@ llvm::Value* GlobalVar::Codegen() {
 	if (NamedValues[var->getName()]) {
 		LogError("Redefining variable in same scope");
 	} else {
-		// allocate memory
-		llvm::Type* vType = var->Tgen();
+		llvm::Type* globtype;
+		llvm::GlobalValue::LinkageTypes lt;
 		if (arrSize) {
-			size_t size = *((llvm::ConstantInt*)arrSize->Codegen())->getValue().getRawData();
-			vType = llvm::ArrayType::get(vType, size);
+			size_t size = arrSize->getNum();
+			globtype = llvm::ArrayType::get(var->Type->Tgen(), size);
+			lt = llvm::GlobalValue::ExternalLinkage;
+		} else {
+			globtype = var->Type->Tgen();
+			lt = llvm::GlobalValue::InternalLinkage;
 		}
-
-		llvm::Constant* init = NULL;
+		llvm::Constant* init;
 		if (init_val) {
 			init = (llvm::Constant*) init_val->Codegen();
 		} else {
-			init = llvm::Constant::getNullValue(vType);
+			init = llvm::Constant::getNullValue(globtype);
 		}
-		llvm::GlobalVariable *gvar = new llvm::GlobalVariable(
-			vType, false, llvm::GlobalValue::InternalLinkage, 
-			init, var->getName().c_str());
+		llvm::GlobalVariable *globvar = new llvm::GlobalVariable(
+				*TheModule, globtype, false, lt, 
+				init, var->getName());
 
-		NamedValues[var->getName()] = (llvm::AllocaInst*) gvar;
+		NamedValues[var->getName()] = globvar;
 		NamedValues.setType(var->getName(), var->getType());
-		return gvar;
+		return globvar;
 	}
 	return NULL;
 }
@@ -107,9 +109,7 @@ llvm::Value* VarCall::Codegen() {
 	    LogError("Unknown variable name");
 
 	llvm::Value* var_res = NULL;
-	if (NamedValues.scope(id)) {
-		var_res = ((llvm::GlobalVariable*) val)->getInitializer();
-	} else if (index) {
+	if (index) {
 		llvm::Value* idx = index->Codegen();
 		var_res = Builder.CreateExtractElement(val, idx);
 	} else {
@@ -248,7 +248,11 @@ llvm::Value* MethodDecl::Codegen() {
 	llvm::Value *RetVal = block->Codegen();
 	// Finish off the function.
 	if (this->Name.compare("main") == 0 && RetVal) {
-		Builder.CreateRet(llvm::ConstantInt::get(Context, llvm::APInt(32, 0)));
+		if (false == rt->isVoidTy()) {
+			Builder.CreateRet(llvm::Constant::getNullValue(rt));
+		} else {
+			Builder.CreateRetVoid();
+		}
 	} else if (!RetVal && rt->isVoidTy()) {
 		Builder.CreateRetVoid();
 	} else if (RetVal->getType() == rt) {
@@ -278,13 +282,11 @@ llvm::Value* AssignAST::Codegen() {
 		LogError("Unknown variable name");
 	}
 
-	if (NamedValues.scope(idname)) {
-		Builder.CreateStore(rval, lval);
-	} else if (arridx) {
+	if (arridx) {
 		llvm::Value *idx = arridx->Codegen();
 		Builder.CreateInsertElement(lval, rval, idx);
 	} else {
-		((llvm::GlobalVariable*) lval)->setInitializer((llvm::Constant*) rval);
+		Builder.CreateStore(rval, lval);
 	}
 
 	return rval;
@@ -308,10 +310,11 @@ llvm::Value* Operation::Codegen() {
 				break;
 		}
 	} else {
-		if (op->getOP() == AND) {
-			return Builder.CreateAnd(L, rvalue->Codegen(), "andtmp");
-		} else if (op->getOP() == OR) {
-			return Builder.CreateOr(L, rvalue->Codegen(), "ortmp");
+		bool ntrue = ((llvm::Constant*)L)->isZeroValue();
+		if (op->getOP() == AND && ntrue) {
+			return llvm::ConstantInt::getFalse(Context);
+		} else if (op->getOP() == OR && false == ntrue) {
+			return llvm::ConstantInt::getTrue(Context);
 		}
 
 		llvm::Value *R = rvalue->Codegen();
@@ -320,6 +323,10 @@ llvm::Value* Operation::Codegen() {
 		}
 
 		switch (op->getOP()) {
+			case AND:
+				return Builder.CreateAnd(L, R, "andtmp");
+			case OR:
+				return Builder.CreateOr(L, R, "ortmp");
 			case EQ:
 				return Builder.CreateICmpEQ(L, R, "eqtmp");
 			case NEQ:
@@ -358,35 +365,44 @@ llvm::Value* IfElseAST::Codegen() {
 	if (!cond)
 		return NULL;
 
-	/*cond = Builder.CreateFCmpONE(cond, llvm::ConstantFP::get(
-		Context, llvm::APFloat(0.0)), "ifcond");*/
+	cond = Builder.CreateFCmpONE(cond, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), "ifcond");
+
 	llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
+	
 	llvm::BasicBlock *ThenBB = llvm::BasicBlock::Create(Context, "then", TheFunction);
 	llvm::BasicBlock *ElseBB = llvm::BasicBlock::Create(Context, "else");
 	llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(Context, "ifcont");
 
 	Builder.CreateCondBr(cond, ThenBB, ElseBB);
+
 	// Then block
 	Builder.SetInsertPoint(ThenBB);
+	
 	llvm::Value *ThenV = if_block->Codegen();
 	if (!ThenV)
 		return nullptr;
+	
 	Builder.CreateBr(MergeBB);
 	ThenBB = Builder.GetInsertBlock();
+	
 	// Else block
 	TheFunction->getBasicBlockList().push_back(ElseBB);
 	Builder.SetInsertPoint(ElseBB);
+	
 	llvm::Value *ElseV = else_block->Codegen();
 	if (!ElseV)
 		return nullptr;
+	
 	Builder.CreateBr(MergeBB);
 	ElseBB = Builder.GetInsertBlock();
+	
 	// Continued block
 	TheFunction->getBasicBlockList().push_back(MergeBB);
 	Builder.SetInsertPoint(MergeBB);
+	
 	llvm::PHINode *PN = Builder.CreatePHI(llvm::Type::getInt32Ty(Context), 2, "iftmp");
+	
 	PN->addIncoming(ThenV, ThenBB);
 	PN->addIncoming(ElseV, ElseBB);
 	return PN;
 }
-

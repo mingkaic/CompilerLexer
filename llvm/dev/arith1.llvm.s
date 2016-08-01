@@ -16,9 +16,7 @@ Ltmp0:
 	movb	$1, 1(%rsp)
 	movb	$0, 2(%rsp)
 	movb	$1, 3(%rsp)
-	movb	1(%rsp), %al
-	andb	$1, %al
-	movb	%al, (%rsp)
+	movb	$1, (%rsp)
 	movl	$0, 4(%rsp)
 	xorl	%edi, %edi
 	callq	_print_int

@@ -1,5 +1,8 @@
 ; ModuleID = 'GreatestCommonDivisor'
 
+@a = internal global i32 10
+@b = internal global i32 20
+
 define i32 @gcd(i32 %a, i32 %b) {
 entry:
   %b2 = alloca i32

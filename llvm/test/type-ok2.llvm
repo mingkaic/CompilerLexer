@@ -1,0 +1,22 @@
+; ModuleID = 'C'
+
+@gstr = private unnamed_addr constant [2 x i8] c"\0A\00"
+
+define void @main() {
+entry:
+  call void @cr()
+  call void @cr()
+  call void @cr()
+  call void @cr()
+  call void @cr()
+  call void @cr()
+  ret void
+}
+
+define void @cr() {
+entry:
+  call void @print_string(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @gstr, i32 0, i32 0))
+  ret void
+}
+
+declare void @print_string(i8*)

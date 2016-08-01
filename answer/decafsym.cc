@@ -16,18 +16,18 @@ enum OPs {
 };
 
 struct descriptor {
-	llvm::AllocaInst* mem;
+	llvm::Value* mem;
 	TYPEs t;
 };
 
 typedef map<string, descriptor> scope_layer;
 
 class symbtbl {
+	scope_layer glob;
 	list<scope_layer* > content;
 	scope_layer* methodbuffer;
 public:
 	symbtbl() {
-		content.push_back(new scope_layer());
 		methodbuffer = new scope_layer;
 	}
 	~symbtbl() {
@@ -36,7 +36,7 @@ public:
 			content.pop_front();
 		}
 	}
-	llvm::AllocaInst*& operator [](string name) {
+	llvm::Value*& operator [] (string name) {
 		list<scope_layer* >::iterator it;
 		for (it = content.begin(); 
 			it != content.end(); it++) {
@@ -44,9 +44,9 @@ public:
 				return (**it)[name].mem;
 			}
 		}
-		return (*content.back())[name].mem;
+		return glob[name].mem;
 	}
-	llvm::AllocaInst*& curscope(string name) {
+	llvm::Value*& curscope(string name) {
 		return (*content.front())[name].mem;
 	}
 	void setType(string name, TYPEs t) {
@@ -58,6 +58,9 @@ public:
 				return;
 			}
 		}
+		if (glob.find(name) != glob.end()) {
+			glob[name].t = t;
+		}
 	}
 	TYPEs getType(string name) {
 		list<scope_layer* >::iterator it;
@@ -65,6 +68,9 @@ public:
 			it != content.end(); it++) {
 			if ((*it)->find(name) != (*it)->end())
 				return (**it)[name].t;
+		}
+		if (glob.find(name) != glob.end()) {
+			return glob[name].t;
 		}
 		return V_BAD;
 	}
@@ -83,7 +89,7 @@ public:
 		content.pop_front();
 	}
 	int scope(string name) {
-		int layer = 0;
+		int layer = 1;
 		size_t top = content.size();
 		list<scope_layer* >::iterator it;
 		for (it = content.begin(); 
@@ -91,6 +97,9 @@ public:
 			if ((*it)->find(name) != (*it)->end()) {
 				return layer-top;
 			}
+		}
+		if (glob.find(name) != glob.end()) {
+			return 0;
 		}
 		return -1;
 	}

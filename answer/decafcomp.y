@@ -119,7 +119,7 @@ program: extern_list decafpackage {
         ProgramAST *prog = new ProgramAST((decafStmtList *)$1, (PackageAST *)$2);
         try {
             prog->Codegen();
-        } 
+        }
         catch (std::runtime_error &e) {
             cout << "semantic error: " << e.what() << endl;
             exit(EXIT_FAILURE);
@@ -216,8 +216,10 @@ field_list: /* empty */ { $$ = new decafStmtList(); } // zero or more
         $$ = globals;
     }
     | field_list T_VAR T_ID decaf_type T_ASSIGN constant T_SEMICOLON {
-        $$ = new GlobalVar(*$3, (TypeSym*) $4, $6);
+        decafStmtList* globals = (decafStmtList*) $1;
+        globals->push_back(new GlobalVar(*$3, (TypeSym*) $4, $6));
         delete $3;
+        $$ = globals;
     }
     ;
 
@@ -464,10 +466,6 @@ int main() {
     //verifyFunction(*TheFunction);
     // Print out all of the generated code to stderr
     TheModule->dump();
-
-    if (retval) {
-        cout << "-1";
-    }
 
     return(retval >= 1 ? EXIT_FAILURE : EXIT_SUCCESS);
 }

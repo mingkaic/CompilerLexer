@@ -7,6 +7,8 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
 ; ModuleID = 'QuickSort'
 
+@list = global [100 x i32] zeroinitializer
+
 define void @main() {
 entry:
   ret void

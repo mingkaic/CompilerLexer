@@ -25,8 +25,7 @@ Ltmp1:
 	.cfi_def_cfa_offset 16
 	andl	$1, %edi
 	movb	%dil, 7(%rsp)
-	movzbl	7(%rsp), %edi
-	andl	$1, %edi
+	movl	$1, %edi
 	callq	_print_int
 	popq	%rax
 	retq

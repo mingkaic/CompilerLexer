@@ -126,6 +126,7 @@ public:
 class NumLit : public decafAST {
 	int data;
 public:
+	int getNum() { return data; }
 	NumLit(int data) : data(data) {}
 	NumLit(string data) {
 		if (data[1] == 'x' || data[1] == 'X') {
@@ -206,7 +207,9 @@ public:
 	GlobalVar(VarDecl* var, NumLit* arrSize) 
 		: var(var), arrSize(arrSize), init_val(NULL) {}
 	GlobalVar(string Name, TypeSym* var_type, decafAST* init_val)
-		: arrSize(NULL), init_val(init_val) { var = new VarDecl(Name, var_type); }
+		: arrSize(NULL), init_val(init_val) {
+		var = new VarDecl(Name, var_type); 
+	}
 	virtual ~GlobalVar() {
 		delete var;
 		if (init_val) {

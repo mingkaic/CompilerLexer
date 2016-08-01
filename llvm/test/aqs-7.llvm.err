@@ -1,17 +1,1 @@
-; ModuleID = 'QuickSort'
-
-define void @quickSort(i32 %left, i32 %right) {
-entry:
-  %right2 = alloca i32
-  %left1 = alloca i32
-  store i32 %left, i32* %left1
-  store i32 %right, i32* %right2
-  %right3 = load i32, i32* %right2
-  %left4 = load i32, i32* %left1
-  %subtmp = sub i32 %right3, %left4
-  %letmp = icmp ule i32 %subtmp, 0
-  br i1 %letmp, label %then, label %else
-
-then:                                             ; preds = %entry
-  ret void
-}
+Assertion failed: (getOperand(0)->getType() == getOperand(1)->getType() && "Both operands to FCmp instruction are not of the same type!"), function FCmpInst, file /Users/cmk/llvm/include/llvm/IR/Instructions.h, line 1306.

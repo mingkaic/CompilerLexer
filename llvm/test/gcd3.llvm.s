@@ -50,5 +50,14 @@ Ltmp2:
 	retq
 	.cfi_endproc
 
+	.section	__DATA,__data
+	.align	2                       ## @a
+_a:
+	.long	10                      ## 0xa
+
+	.align	2                       ## @b
+_b:
+	.long	20                      ## 0x14
+
 
 .subsections_via_symbols

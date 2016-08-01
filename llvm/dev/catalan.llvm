@@ -62,7 +62,7 @@ entry:
   %calltmp = call i32 @read_int()
   %calltmp1 = call i32 @cat(i32 %calltmp)
   call void @print_int(i32 %calltmp1)
-  ret i32 0
+  ret void
 }
 
 declare void @print_int(i32)

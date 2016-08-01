@@ -17,7 +17,7 @@ entry:
   %size = alloca i32
   store i32 0, i32* %size
   store i32 100, i32* %size
-  ret i32 0
+  ret void
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/aqs-8.llvm" -o "llvm/test/aqs-8.llvm.bc" ... failed (1)
 /Users/cmk/llvm/bin/llvm-as: llvm/test/aqs-8.llvm:1:1: error: expected top-level entity

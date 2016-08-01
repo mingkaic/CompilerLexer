@@ -19,7 +19,7 @@ entry:
   store i1 true, <null operand!>
   store i32 0, <null operand!>
   store i32 24, <null operand!>
-  ret i32 0
+  ret void
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/dev/assoc.llvm" -o "llvm/dev/assoc.llvm.bc" ... failed (1)
 /Users/cmk/llvm/bin/llvm-as: llvm/dev/assoc.llvm:1:1: error: expected top-level entity

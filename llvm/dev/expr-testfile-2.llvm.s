@@ -15,6 +15,7 @@ Ltmp0:
 	movl	$-958, (%rsp)           ## imm = 0xFFFFFFFFFFFFFC42
 	movb	$1, 6(%rsp)
 	movb	$0, 7(%rsp)
+	movb	$1, 6(%rsp)
 	movl	(%rsp), %edi
 	negl	%edi
 	callq	_print_int

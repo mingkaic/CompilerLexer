@@ -1,3 +1,61 @@
+INFO:root:path=test
+INFO:root:Checking test/1param.out
+INFO:root:test/1param.out Correct!
+INFO:root:Checking test/aqs.out
+INFO:root:test/aqs.out Correct!
+INFO:root:Checking test/aqs-6.out
+INFO:root:test/aqs-6.out Correct!
+INFO:root:Checking test/2param.out
+INFO:root:test/2param.out Correct!
+INFO:root:Checking test/catalan2.out
+INFO:root:Diff between reference and your output for test/catalan2.out
+INFO:root:
+--- reference
++++ your-output
+@@ -1 +0,0 @@
+-1430
+INFO:root:Checking test/aqs-2.out
+INFO:root:test/aqs-2.out Correct!
+INFO:root:Checking test/aqs-5.out
+INFO:root:test/aqs-5.out Correct!
+INFO:root:Checking test/aqs-7.out
+INFO:root:test/aqs-7.out Correct!
+INFO:root:Checking test/3int-blocks.out
+INFO:root:test/3int-blocks.out Correct!
+INFO:root:Checking test/1block-2var.out
+INFO:root:test/1block-2var.out Correct!
+INFO:root:Checking test/2int-blocks.out
+INFO:root:test/2int-blocks.out Correct!
+INFO:root:Checking test/2bool-blocks.out
+INFO:root:test/2bool-blocks.out Correct!
+INFO:root:Checking test/type-ok1.out
+INFO:root:test/type-ok1.out Correct!
+INFO:root:Checking test/aqs-3.out
+INFO:root:test/aqs-3.out Correct!
+INFO:root:Checking test/type-ok2.out
+INFO:root:Diff between reference and your output for test/type-ok2.out
+INFO:root:
+--- reference
++++ your-output
+@@ -1,6 +0,0 @@
+-
+-
+-
+-
+-
+-
+INFO:root:Checking test/aqs-8.out
+INFO:root:test/aqs-8.out Correct!
+INFO:root:Checking test/aqs-9.out
+INFO:root:test/aqs-9.out Correct!
+INFO:root:Checking test/5blocks-fcall.out
+INFO:root:test/5blocks-fcall.out Correct!
+INFO:root:Checking test/1block-1var.out
+INFO:root:test/1block-1var.out Correct!
+INFO:root:Checking test/aqs-4.out
+INFO:root:test/aqs-4.out Correct!
+INFO:root:Checking test/3param.out
+INFO:root:test/3param.out Correct!
 INFO:root:path=dev
 INFO:root:Checking dev/expr-testfile-6.out
 INFO:root:dev/expr-testfile-6.out Correct!
@@ -364,6 +422,8 @@ INFO:root:
 -10
 INFO:root:Checking dev/assignmismatch-intofchar-ok.out
 INFO:root:dev/assignmismatch-intofchar-ok.out Correct!
+INFO:root:Checking dev/skct.out
+INFO:root:dev/skct.out Correct!
 INFO:root:Checking dev/method0-prev.ret
 INFO:root:dev/method0-prev.ret Correct!
 INFO:root:Checking dev/blt.out

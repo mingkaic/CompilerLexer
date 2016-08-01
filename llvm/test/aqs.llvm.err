@@ -1,2 +1,12 @@
-syntax error
-; ModuleID = 'Test'
+; ModuleID = 'QuickSort'
+
+@x = internal global i32 0
+
+define void @main() {
+entry:
+  ret void
+}
+
+declare void @print_string(i8*)
+
+declare void @print_int(i32)

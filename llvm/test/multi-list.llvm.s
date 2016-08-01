@@ -8,5 +8,11 @@ _main:                                  ## @main
 	retq
 	.cfi_endproc
 
+	.globl	_a                      ## @a
+.zerofill __DATA,__common,_a,400,4
+	.globl	_b                      ## @b
+.zerofill __DATA,__common,_b,400,4
+	.globl	_c                      ## @c
+.zerofill __DATA,__common,_c,400,4
 
 .subsections_via_symbols

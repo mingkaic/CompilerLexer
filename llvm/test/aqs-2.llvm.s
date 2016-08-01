@@ -8,5 +8,7 @@ _main:                                  ## @main
 	retq
 	.cfi_endproc
 
+	.globl	_list                   ## @list
+.zerofill __DATA,__common,_list,400,4
 
 .subsections_via_symbols

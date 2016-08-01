@@ -7,17 +7,20 @@ stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
 generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
 ; ModuleID = 'C'
 
+@x = internal global i32 0
+@size = internal global i32 0
+
 define void @f() {
 entry:
   %i = alloca i32
   %x = alloca i32
   store i32 0, i32* %x
   store i32 0, i32* %i
-  store i32 100, i32* %size
+  store i32 100, i32* @size
   ret void zeroinitializer
 }
 assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/test/loops.llvm" -o "llvm/test/loops.llvm.bc" ... failed (1)
-/Users/cmk/llvm/bin/llvm-as: llvm/test/loops.llvm:10:12: error: expected instruction opcode
+/Users/cmk/llvm/bin/llvm-as: llvm/test/loops.llvm:13:12: error: expected instruction opcode
   ret void zeroinitializer
            ^
 converting to native code:/Users/cmk/llvm/bin/llc "llvm/test/loops.llvm.bc" -o "llvm/test/loops.llvm.s" ... failed (1)

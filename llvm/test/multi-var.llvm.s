@@ -8,5 +8,8 @@ _main:                                  ## @main
 	retq
 	.cfi_endproc
 
+.zerofill __DATA,__bss,_a,4,2           ## @a
+.zerofill __DATA,__bss,_b,4,2           ## @b
+.zerofill __DATA,__bss,_c,4,2           ## @c
 
 .subsections_via_symbols
