@@ -1,0 +1,3 @@
+/Users/cmk/llvm/bin/llvm-as: llvm/test/gcd2.llvm:15:1: error: expected instruction opcode
+}
+^

@@ -12,7 +12,6 @@ entry:
   %a3 = load i32, i32* %a1
   %b4 = load i32, i32* %b2
   %calltmp = call i1 @iszero(i32 %a3, i32 %b4)
-  ret i32 0
 }
 
 define i1 @iszero(i32 %a, i32 %b) {
@@ -23,7 +22,8 @@ entry:
   store i32 %b, i32* %b2
   %b3 = load i32, i32* %b2
   %eqtmp = icmp eq i32 %b3, 0
-  br i1 %eqtmp, label %then, label %else
+  %ifcond = icmp eq i1 %eqtmp, false
+  br i1 %ifcond, label %then, label %else
 
 then:                                             ; preds = %entry
   %a4 = load i32, i32* %a1
@@ -39,7 +39,6 @@ else:                                             ; preds = %entry
 
 ifcont:                                           ; preds = %else, %then
   %iftmp = phi i32 [ %a4, %then ], [ %calltmp, %else ]
-  ret i1 false
 }
 
 define i32 @main() {

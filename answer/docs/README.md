@@ -20,7 +20,20 @@ Pipe Decaf files into the decafexpr application
 
 ## History
 
+01 Aug, 2016
+303/305																							mingkaic authored
+
+ 19 Jul, 2016
+global variables, et al.																		mingkaic authored
+
+ 16 Jul, 2016
+refactor + array implementation: 211/212														mingkaic authored
+
 12 Jul, 2016
+assignment 4 setup																				mingkaic authored
+final cleanup for assign3																		mingkaic authored
+cleaned src																						mingkaic authored
+cleanup and documented																			mingkaic authored
 100/100																							mingkaic authored
  11 Jul, 2016
 95/100																							mingkaic authored
@@ -72,3 +85,4 @@ Ming Kai Chen
 Nav Kalra
 
 - defined most of the error cases for the lexer analyzer
+- implemented codegen for control flow

@@ -1,3 +1,4 @@
+LogError: Unknown function referenced
 ; ModuleID = 'QuickSort'
 
 @list = global [100 x i32] zeroinitializer
@@ -23,10 +24,7 @@ entry:
   %right5 = load i32, i32* %right2
   store i32 %right5, i32* %rightPtr
   %leftPtr6 = load i32, i32* %leftPtr
-  %right7 = load i32, i32* %right2
-  call void @swap(i32 %leftPtr6, i32 %right7)
-  %leftPtr8 = load i32, i32* %leftPtr
-  ret i32 %leftPtr8
+  ret i32 %leftPtr6
 }
 
 define void @main() {
@@ -61,27 +59,6 @@ entry:
 
 then:                                             ; preds = %entry
   ret void
-}
-
-define void @swap(i32 %leftPtr, i32 %rightPtr) {
-entry:
-  %temp = alloca i32
-  %rightPtr2 = alloca i32
-  %leftPtr1 = alloca i32
-  store i32 %leftPtr, i32* %leftPtr1
-  store i32 %rightPtr, i32* %rightPtr2
-  store i32 0, i32* %temp
-  %leftPtr3 = load i32, i32* %leftPtr1
-  %0 = extractelement [100 x i32]* @list, i32 %leftPtr3
-  store [100 x i32] %0, i32* %temp
-  %rightPtr4 = load i32, i32* %rightPtr2
-  %1 = extractelement [100 x i32]* @list, i32 %rightPtr4
-  %leftPtr5 = load i32, i32* %leftPtr1
-  %2 = insertelement [100 x i32]* @list, [100 x i32] %1, i32 %leftPtr5
-  %temp6 = load i32, i32* %temp
-  %rightPtr7 = load i32, i32* %rightPtr2
-  %3 = insertelement [100 x i32]* @list, i32 %temp6, i32 %rightPtr7
-  ret void zeroinitializer
 }
 
 define void @initList(i32 %size) {

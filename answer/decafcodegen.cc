@@ -261,12 +261,14 @@ llvm::Value* MethodDecl::Codegen() {
 		} else {
 			Builder.CreateRet(RetVal);
 		}
+	} else if (RetVal->getType()->isVoidTy()){
+		Builder.CreateRet(llvm::Constant::getNullValue(rt));
 	} else {
 		// return type mismatch
-		/*LogError("Bad body");
+		/*LogError("Bad body");*/
   		TheFunction->eraseFromParent();
-  		return NULL;*/
-  		Builder.CreateRet(llvm::Constant::getNullValue(rt));
+  		return NULL;
+  		//Builder.CreateRet(llvm::Constant::getNullValue(rt));
 	}
 
 	// Validate the generated code, checking for consistency.
@@ -364,8 +366,6 @@ llvm::Value* IfElseAST::Codegen() {
 	llvm::Value *cond = condition->Codegen();
 	if (!cond)
 		return NULL;
-
-	cond = Builder.CreateFCmpONE(cond, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), "ifcond");
 
 	llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
 	

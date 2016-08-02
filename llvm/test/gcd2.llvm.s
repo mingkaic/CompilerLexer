@@ -28,7 +28,7 @@ Ltmp1:
 	movl	%edi, (%rsp)
 	movl	%esi, 4(%rsp)
 	testl	%esi, %esi
-	je	LBB1_2
+	jne	LBB1_2
 ## BB#1:                                ## %else
 	movl	4(%rsp), %edi
 	movl	(%rsp), %eax

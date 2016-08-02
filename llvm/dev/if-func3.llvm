@@ -1,11 +1,7 @@
+LogError: Unknown function referenced
 ; ModuleID = 'C'
 
 define void @main() {
 entry:
   ret void
-}
-
-define i1 @f() {
-entry:
-  ret i1 false
 }

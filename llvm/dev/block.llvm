@@ -1,8 +1,2 @@
 LogError: Unknown variable name
 ; ModuleID = 'C'
-
-define void @f() {
-entry:
-  store i32 1, <null operand!>
-  ret void zeroinitializer
-}

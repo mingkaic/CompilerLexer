@@ -1,3 +1,3 @@
-/Users/cmk/llvm/bin/llvm-as: llvm/dev/quicksort.llvm:60:36: error: use of undefined value '%else'
-  br i1 %letmp, label %then, label %else
-                                   ^
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/quicksort.llvm:1:1: error: expected top-level entity
+LogError: Unknown function referenced
+^

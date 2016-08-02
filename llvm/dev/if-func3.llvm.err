@@ -1,1 +1,7 @@
-Assertion failed: (getOperand(0)->getType() == getOperand(1)->getType() && "Both operands to FCmp instruction are not of the same type!"), function FCmpInst, file /Users/cmk/llvm/include/llvm/IR/Instructions.h, line 1306.
+LogError: Unknown function referenced
+; ModuleID = 'C'
+
+define void @main() {
+entry:
+  ret void
+}
