@@ -1,0 +1,18 @@
+output prefix: llvm/dev/3
+llvmas: /Users/cmk/llvm/bin/llvm-as
+llc: /Users/cmk/llvm/bin/llc
+cc: gcc
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... failed (1)
+syntax error
+; ModuleID = 'Test'
+
+declare void @swap(i32 %leftPtr, i32 %rightPtr)
+
+declare void @initList(i32 %size)
+
+declare void @displayList(i32 %start, i32 %len)
+
+declare void @cr()
+codegen failed

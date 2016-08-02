@@ -1,0 +1,21 @@
+output prefix: llvm/dev/if-func3
+llvmas: /Users/cmk/llvm/bin/llvm-as
+llc: /Users/cmk/llvm/bin/llc
+cc: gcc
+codegen: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp
+stdlib: /Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c
+generating llvm code:/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decafcomp ... ok
+LogError: Unknown function referenced
+; ModuleID = 'C'
+
+define void @main() {
+entry:
+  ret void
+}
+assembling to bitcode:/Users/cmk/llvm/bin/llvm-as "llvm/dev/if-func3.llvm" -o "llvm/dev/if-func3.llvm.bc" ... failed (1)
+/Users/cmk/llvm/bin/llvm-as: llvm/dev/if-func3.llvm:1:1: error: expected top-level entity
+LogError: Unknown function referenced
+^
+converting to native code:/Users/cmk/llvm/bin/llc "llvm/dev/if-func3.llvm.bc" -o "llvm/dev/if-func3.llvm.s" ... ok
+linking:gcc -o "llvm/dev/if-func3.llvm.exec" "llvm/dev/if-func3.llvm.s" "/Users/cmk/Developer/cworkspace/compiler/hw4/Lexer/answer/decaf-stdlib.c" ... ok
+running:llvm/dev/if-func3.llvm.exec ... failed (96)
